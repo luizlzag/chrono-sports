@@ -8,7 +8,7 @@ function ItensCart() {
 
     return ( 
         <div>
-            <div className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer">
+            <div className="fixed  rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer">
             <IoMdCart size={24} color="white" onClick={()=> setOpenCart(!openCart)} />
             </div>
 

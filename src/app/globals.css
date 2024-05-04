@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+*{
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
 body{
     background-color:black ;
 }
+
+::selection {
+    background-color:black; /* cor de fundo dourada */
+    color: white; /* cor do texto durante a seleção, preto neste caso */
+  }
+  
+  /* Para compatibilidade com navegadores mais antigos, como o Safari */
+  ::-webkit-selection {
+    background-color: black;
+    color: white;
+  }

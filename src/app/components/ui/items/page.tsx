@@ -35,9 +35,9 @@ const itensList = [
 function Itens() {
 
     return ( 
-        <div>
+        <div className="md:grid md:grid-cols-4">
             {itensList.map((i)=>
-            <div className="flex mx-3 " key={i.id}>
+            <div className="flex mx-3" key={i.id}>
                 <div className="w-screen rounded shadow py-3 px-3 mb-3 bg-white grid grid-cols-2">
                     <Image 
                         src='/luvavermelha.png'
