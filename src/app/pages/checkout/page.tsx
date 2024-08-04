@@ -1,11 +1,12 @@
+"use client"; 
 import PaymentCheckout from '../../components/ui/payament/PayamentComponent';
-import * as React from 'react';
+import React, { Suspense } from 'react';
 
 function PayamentPage() {
     return ( 
-        <div>
-            <PaymentCheckout/>
-        </div>
+        <Suspense fallback={<div>Loading...</div>}>
+      <PaymentCheckout />
+    </Suspense>
      );
 }
 
