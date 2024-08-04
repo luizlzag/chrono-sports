@@ -1,4 +1,4 @@
-import PaymentCheckout from '@/app/components/ui/payament/PayamentComponent';
+import PaymentCheckout from '../../components/ui/payament/PayamentComponent';
 import * as React from 'react';
 
 function PayamentPage() {
