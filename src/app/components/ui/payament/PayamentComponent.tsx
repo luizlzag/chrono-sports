@@ -36,9 +36,6 @@ function CheckoutForm() {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix'>('card');
   const searchParams = useSearchParams();
 
-  const encryptData = (data: string | number, secretKey: string) => {
-    return CryptoJS.AES.encrypt(String(data), secretKey).toString();
-};
 
 // Função para descriptografar
 const decryptData = (ciphertext: string, secretKey: string) => {
@@ -97,7 +94,7 @@ const decryptData = (ciphertext: string, secretKey: string) => {
         });
 
         // Enviar dados de pagamento para a API
-        response = await axios.post('/api/payment', {
+        response = await axios.post('/src/api/stripe/checkout.ts', {
           amount: amount * 100, // Converter para centavos
           currency: 'brl',
           paymentMethodId: cardPaymentMethod?.id,
@@ -105,7 +102,7 @@ const decryptData = (ciphertext: string, secretKey: string) => {
         });
       } else if (paymentMethod === 'pix') {
         // Lógica para pagamento via PIX
-        response = await axios.post('/api/payment', {
+        response = await axios.post('/pages/api', {
           amount: amount * 100, // Converter para centavos
           currency: 'brl',
           paymentMethodType: 'pix',
