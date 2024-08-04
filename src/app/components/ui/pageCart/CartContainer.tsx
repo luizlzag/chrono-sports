@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { IoMdAddCircle, IoMdCart, IoMdAdd, IoMdRemove, IoMdTrash } from "react-icons/io";
+import { useRouter } from "next/navigation";
+import CryptoJS from 'crypto-js';
+
 
 type Item = {
     id: string;
@@ -114,6 +117,25 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
         setCartItems(updatedItems);
         localStorage.setItem('cart', JSON.stringify(updatedItems));
     };
+    const router = useRouter();
+
+    const encryptData = (data: string | number, secretKey: string) => {
+        return CryptoJS.AES.encrypt(String(data), secretKey).toString();
+    };
+    
+    // Dentro do handlePayment
+    const handlePayment = () => {
+        const totalAmount = calculateTotal();
+        const cartParam = JSON.stringify(cartItems);
+    
+        // Criptografa os dados do carrinho
+        const encryptedCart = encryptData(cartParam, '/Bin/Bash#2507'); // Use uma chave secreta forte
+        const encryptedAmount = encryptData(totalAmount, '/Bin/Bash#2507'); // Use uma chave secreta forte
+    
+        // Redireciona para a página de checkout com os dados criptografados
+        router.push(`/pages/checkout?amount=${encryptedAmount}&cart=${encodeURIComponent(encryptedCart)}`);
+    };
+
 
     return (
         <>
@@ -149,7 +171,7 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
                         </div>
                         <div className="grid gap-4 pt-4 border-t border-gray-200">
                             <p className="font-bold text-right text-lg">Total: R${calculateTotal().toFixed(2)}</p>
-                            <button className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800">PAGAMENTO</button>
+                            <button onClick={handlePayment} className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800">PAGAMENTO</button>
                         </div>
                     </div>
                     <div onClick={() => setOpenCart(false)} className="bg-gray-700 opacity-30 fixed top-0 w-full h-full z-0"></div>

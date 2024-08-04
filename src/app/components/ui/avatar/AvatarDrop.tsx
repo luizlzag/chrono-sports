@@ -7,9 +7,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Image from 'next/image';
 import chronocoin from '../../../../../public/chronocoin-removebg-preview.png';
+import { useRouter } from 'next/navigation';
 
 
 function AvatarDrop() {
+    const router = useRouter();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -18,6 +20,10 @@ function AvatarDrop() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+    const handleProfile = () => {
+        setAnchorEl(null);
+        router.push('/pages/profile');
+    }   
     return (  
         <div className='flex items-center gap-5 text-white'>
             <div>
@@ -40,7 +46,7 @@ function AvatarDrop() {
                     'aria-labelledby': 'basic-button',
                     }}
                 >
-                    <MenuItem onClick={handleClose}>PERFIL</MenuItem>
+                    <MenuItem onClick={handleProfile}>PERFIL</MenuItem>
                     <Divider />
                     <MenuItem onClick={handleClose}>
                      <Image
