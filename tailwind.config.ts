@@ -13,6 +13,15 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      keyframes: {
+        'pulse-red': {
+          '0%, 100%': { backgroundColor: 'rgb(220, 38, 38)' }, // tom de vermelho inicial
+          '50%': { backgroundColor: 'rgb(255, 99, 71)' }, // tom de vermelho mais claro
+        },
+      },
+      animation: {
+        'pulse-red': 'pulse-red 3s ease-in-out infinite',
+      },
     },
   },
   plugins: [],
