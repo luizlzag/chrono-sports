@@ -23,7 +23,14 @@ function AvatarDrop() {
     const handleProfile = () => {
         setAnchorEl(null);
         router.push('/pages/profile');
-    }   
+    }  
+    const handleQuiet = () => {
+        setAnchorEl(null);
+        router.push('/');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+
+    } 
     return (  
         <div className='flex items-center gap-5 text-white'>
             <div>
@@ -47,6 +54,7 @@ function AvatarDrop() {
                     }}
                 >
                     <MenuItem onClick={handleProfile}>PERFIL</MenuItem>
+                    <MenuItem onClick={handleQuiet}>SAIR</MenuItem>
                     <Divider />
                     <MenuItem onClick={handleClose}>
                      <Image
@@ -60,8 +68,8 @@ function AvatarDrop() {
                 </Menu>
             </div>
             <div className='m-0'>
-                <p>Matheus</p>
-                <p>Força e Ação</p>
+            <p>{ JSON.parse(localStorage.getItem('user') ?? '')?.name }</p>
+            <p>Força e Ação</p>
             </div>
         </div>
     );

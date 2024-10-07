@@ -9,6 +9,7 @@ import BackButton from "../ButtonReturn/ButtonReturn";
 import ChronoCoinsSection from "./ChronoCoins";
 import ReferralsSection from "./ReferralsSection";
 import { Tooltip, ClickAwayListener } from "@mui/material";
+import { getStock, getGoals, getSalles  } from "../../../../api/axios/api";
 
 // Tipos para facilitar a tipagem futura com TypeScript
 interface Reward {
@@ -27,6 +28,8 @@ interface ProfileData {
   rewards: Reward[];
   commission: number;
   stockStatus: StockItem[];
+  referrals: GymReferral[];
+  totalSalesAmount: number;
 }
 
 interface GymReferral {
@@ -37,56 +40,59 @@ interface GymReferral {
   nextPositionSales: number;
 }
 
-interface ProfileData {
-  totalSales: number;
-  salesTarget: number;
-  rewards: Reward[];
-  commission: number;
-  stockStatus: StockItem[];
-  referrals: GymReferral[]; // Novo campo para academias indicadas
-}
-
-
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
-  // Simula uma chamada à API para buscar os dados
   useEffect(() => {
     const fetchData = async () => {
-      // Essa simulação pode ser substituída por uma chamada à API real
-      const data: ProfileData = {
-        totalSales: 40,
-        salesTarget: 100,
-        rewards: [
-          { sales: 40, reward: "Bandagem" },
-          { sales: 60, reward: "Luva" },
-          { sales: 100, reward: "Camiseta" },
-        ],
-        commission: 2345,
-        stockStatus: [
-          { name: "Luva", quantity: 50 },
-          { name: "Bandagem", quantity: 20 },
-          { name: "Bocal", quantity: 5 },
-        ],
-        referrals: [
-          {
-            name: "Academia XYZ",
-            commission: 150,
-            position: 5,
-            targetSales: 200,
-            nextPositionSales: 50,
-          },
-          {
-            name: "Academia ABC",
-            commission: 200,
-            position: 4,
-            targetSales: 250,
-            nextPositionSales: 0,
-          },
-        ],
-      };
-      setProfileData(data);
+      try {
+        const stockData = await getStock();
+        const goalsData = await getGoals();
+        const salesData = await getSalles();
+
+        const stockStatus = stockData.products.map((product: { name: string, stock: { quantity: number }[] }) => ({
+          name: product.name,
+          quantity: product.stock[0].quantity,
+        }));
+
+        const rewards = goalsData.goals.map((goal: { goal: number, reward: string }) => ({
+          sales: goal.goal,
+          reward: goal.reward,
+        }));
+
+          // Calcula o total de vendas realizadas
+        const totalSalesAmount = salesData.sales.reduce((sum: number, sale: { total: number }) => sum + sale.total, 0);
+
+        const data: ProfileData = {
+          totalSales: 40,
+          salesTarget: 100,
+          rewards: rewards,
+          commission: 2345,
+          stockStatus: stockStatus,
+          referrals: [
+            {
+              name: "Academia XYZ",
+              commission: 150,
+              position: 5,
+              targetSales: 200,
+              nextPositionSales: 50,
+            },
+            {
+              name: "Academia ABC",
+              commission: 200,
+              position: 4,
+              targetSales: 250,
+              nextPositionSales: 0,
+            },
+          ],
+          totalSalesAmount: totalSalesAmount,
+        };
+
+        setProfileData(data);
+      } catch (error) {
+        console.error("Erro ao buscar dados do perfil:", error);
+      }
     };
 
     fetchData();
@@ -109,8 +115,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col p-4">
-      {/* Cabeçalho */}
+    <div className="min-h-screen bg-gray-50 flex flex-col p-4">
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
           <Image
@@ -121,7 +126,7 @@ export default function ProfilePage() {
             className="rounded-full"
           />
           <div>
-            <h1 className="text-xl font-bold text-black">Matheus</h1>
+            <h1 className="text-xl font-bold text-black">{ JSON.parse(localStorage.getItem('user') ?? '')?.name }</h1>
             <p className="text-gray-600">Força e Ação</p>
           </div>
         </div>
@@ -152,18 +157,16 @@ export default function ProfilePage() {
         )}
       </header>
 
-      {/* Seção de Vendas */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-black">Vendas</h2>
             <p className="text-gray-600">Total de vendas realizadas</p>
           </div>
-          <p className="text-2xl font-bold text-red-600">R$ 12.345,00</p>
+          <p className="text-2xl font-bold text-red-600">R$ {profileData.totalSalesAmount.toFixed(2)}</p>
         </div>
       </section>
 
-      {/* Seção de Meta e Recompensas */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center justify-between mb-4">
@@ -171,7 +174,6 @@ export default function ProfilePage() {
             <FaCoins className="text-gray-600" size={24} />
           </div>
 
-          {/* Barra de Progresso */}
           <div className="relative w-full h-4 bg-gray-300 rounded-full mb-2">
             <div
               className="absolute top-0 left-0 h-4 bg-red-600 rounded-full"
@@ -183,7 +185,6 @@ export default function ProfilePage() {
               }}
             ></div>
 
-            {/* Indicadores de Recompensas */}
             {profileData.rewards.map((reward, index) => (
               <div
                 key={index}
@@ -215,14 +216,10 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Seção de Comissões */}
-      <ChronoCoinsSection chronoCoins={69} minWithdrawal={100}/>
+      <ChronoCoinsSection chronoCoins={profileData.totalSalesAmount} minWithdrawal={100}/>
 
-
-      {/* Seção de Indicação */}
       <ReferralsSection referrals={profileData.referrals} />
 
-      {/* Seção de Status do Estoque */}
       <section className="mb-6 pb-20">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-center justify-between mb-4">

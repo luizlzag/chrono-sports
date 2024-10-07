@@ -4,61 +4,80 @@ import Image from "next/image";
 import { IoMdAddCircle, IoMdCart, IoMdAdd, IoMdRemove, IoMdTrash } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import CryptoJS from 'crypto-js';
-
+import { getProducts } from "@/api/axios/api";
 
 type Item = {
     id: string;
-    img: string;
+    imageUrl: string;
     name: string;
     price: number;
     quantity?: number;
 };
 
-const itensList: Item[] = [
-    {
-        id: '1',
-        img: '',
-        name: 'LUVA VERMELHA',
-        price: 123.90
-    },
-    {
-        id: '2',
-        img: '',
-        name: 'LUVA AZUL',
-        price: 101.90
-    },
-    {
-        id: '3',
-        img: '',
-        name: 'LUVA AZUL',
-        price: 135.90
-    },
-    {
-        id: '4',
-        img: '',
-        name: 'LUVA AZUL',
-        price: 295.90
-    },
-];
-
 const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> = ({ addToCart, searchTerm }) => {
-    const filteredItems = itensList.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const [itensList, setItensList] = useState<Item[]>([]);  // Armazena os itens da API
+    const [loading, setLoading] = useState<boolean>(true);   // Estado de carregamento
+    const [error, setError] = useState<string | null>(null); // Estado de erro
+
+    // Carregar produtos da API
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await getProducts(); // Chama a API para obter a resposta
+                const products = response.products; // Chama a API para obter produtos
+               
+                // Verifique se a resposta da API é um array
+                if (Array.isArray(products)) {
+                    setItensList(products); // Atualiza o estado com os produtos obtidos
+                } else {
+                    throw new Error("A resposta da API não é um array");
+                }
+            } catch (err) {
+                console.error("Erro ao carregar produtos:", err);
+                setError("Erro ao carregar produtos"); // Trata erros
+            } finally {
+                setLoading(false); // Termina o carregamento
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    // Filtra itens com base no termo de busca
+    const filteredItems = Array.isArray(itensList)
+        ? itensList.filter((item) =>
+              item.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : []; // Garante que `itensList` é um array
+
+    // Exibe uma mensagem de carregamento enquanto a requisição está em andamento
+    if (loading) {
+        return <p>Carregando produtos...</p>;
+    }
+
+    // Exibe uma mensagem de erro se houver falha na requisição
+    if (error) {
+        return <p>{error}</p>;
+    }
+    
 
     return (
+        
         <div className="md:grid md:grid-cols-4 gap-4">
             {filteredItems.length > 0 ? filteredItems.map((i) =>
                 <div className="flex" key={i.id}>
                     <div className="w-full rounded shadow py-3 px-3 mb-3 bg-white grid grid-cols-2">
                         <Image
-                            src='/luvavermelha.png'
+                            src={i.imageUrl || '/logo.png'} // Usa a imagem da API ou uma default
                             alt={i.name}
                             width={80}
-                            height={80} />
+                            height={80}
+                        />
                         <div className="bg-white">
                             <p className="font-semibold bg-white">{i.name}</p>
-                            <p className="bg-red-600 px-2 py-2 rounded-md text-white font-semibold text-center text-lg"><span className="font-thin text-sm">R$</span>{i.price}</p>
+                            <p className="bg-red-600 px-2 py-2 rounded-md text-white font-semibold text-center text-lg">
+                                <span className="font-thin text-sm">R$</span>{i.price}
+                            </p>
                             <button
                                 className="flex items-center gap-2 hover:text-green-700"
                                 onClick={() => addToCart({ ...i, quantity: 1 })}
