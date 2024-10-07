@@ -18,6 +18,7 @@ const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> =
     const [itensList, setItensList] = useState<Item[]>([]);  // Armazena os itens da API
     const [loading, setLoading] = useState<boolean>(true);   // Estado de carregamento
     const [error, setError] = useState<string | null>(null); // Estado de erro
+    
 
     // Carregar produtos da API
     useEffect(() => {

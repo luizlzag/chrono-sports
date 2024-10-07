@@ -40,12 +40,20 @@ interface GymReferral {
   nextPositionSales: number;
 }
 
+
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
+      if (typeof window !== "undefined") {
+        const user = localStorage.getItem("user");
+        if (user) {
+          setUserName(JSON.parse(user).name);
+        }
+      }
       try {
         const stockData = await getStock();
         const goalsData = await getGoals();
@@ -126,7 +134,7 @@ export default function ProfilePage() {
             className="rounded-full"
           />
           <div>
-            <h1 className="text-xl font-bold text-black">{ JSON.parse(localStorage.getItem('user') ?? '')?.name }</h1>
+            <h1 className="text-xl font-bold text-black">{ userName }</h1>
             <p className="text-gray-600">Força e Ação</p>
           </div>
         </div>
