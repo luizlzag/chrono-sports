@@ -21,7 +21,7 @@ function LoginPage() {
 
     if (response.token) {
         // Login bem-sucedido, redireciona ou executa alguma ação
-        router.push('/pages/profile'); // Redireciona para a página inicial ou qualquer outra
+        router.push('/pages/home'); // Redireciona para a página inicial ou qualquer outra
     } else {
         // Login falhou, exibe mensagem de erro
         setError(response.message); // Certifique-se de que sua API retorna um campo 'message'

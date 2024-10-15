@@ -79,7 +79,7 @@ function AvatarDrop() {
                             width={40}
                             height={40}
                         />
-                        100
+                        
                     </MenuItem>
                 </Menu>
             </div>

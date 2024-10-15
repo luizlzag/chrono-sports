@@ -9,7 +9,7 @@ import BackButton from "../ButtonReturn/ButtonReturn";
 import ChronoCoinsSection from "./ChronoCoins";
 import ReferralsSection from "./ReferralsSection";
 import { Tooltip, ClickAwayListener } from "@mui/material";
-import { getStock, getGoals, getSalles  } from "../../../../api/axios/api";
+import { getStock, getGoals, getSalles } from "../../../../api/axios/api";
 
 // Tipos para facilitar a tipagem futura com TypeScript
 interface Reward {
@@ -40,7 +40,6 @@ interface GymReferral {
   nextPositionSales: number;
 }
 
-
 export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -55,13 +54,13 @@ export default function ProfilePage() {
         }
       }
       try {
-        const stockData = await getStock();
-        const goalsData = await getGoals();
-        const salesData = await getSalles();
+        const stockData = await getStock().catch(() => ({ products: [] }));
+        const goalsData = await getGoals().catch(() => ({ goals: [] }));
+        const salesData = await getSalles().catch(() => ({ sales: [] }));
 
         const stockStatus = stockData.products.map((product: { name: string, stock: { quantity: number }[] }) => ({
           name: product.name,
-          quantity: product.stock[0].quantity,
+          quantity: product.stock[0]?.quantity || 0,
         }));
 
         const rewards = goalsData.goals.map((goal: { goal: number, reward: string }) => ({
@@ -69,7 +68,6 @@ export default function ProfilePage() {
           reward: goal.reward,
         }));
 
-          // Calcula o total de vendas realizadas
         const totalSalesAmount = salesData.sales.reduce((sum: number, sale: { total: number }) => sum + sale.total, 0);
 
         const data: ProfileData = {
@@ -100,6 +98,15 @@ export default function ProfilePage() {
         setProfileData(data);
       } catch (error) {
         console.error("Erro ao buscar dados do perfil:", error);
+        setProfileData({
+          totalSales: 0,
+          salesTarget: 100,
+          rewards: [],
+          commission: 0,
+          stockStatus: [],
+          referrals: [],
+          totalSalesAmount: 0,
+        });
       }
     };
 
@@ -134,7 +141,7 @@ export default function ProfilePage() {
             className="rounded-full"
           />
           <div>
-            <h1 className="text-xl font-bold text-black">{ userName }</h1>
+            <h1 className="text-xl font-bold text-black">{userName}</h1>
             <p className="text-gray-600">Força e Ação</p>
           </div>
         </div>
@@ -224,7 +231,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <ChronoCoinsSection chronoCoins={profileData.totalSalesAmount} minWithdrawal={100}/>
+      <ChronoCoinsSection chronoCoins={profileData.totalSalesAmount} minWithdrawal={100} />
 
       <ReferralsSection referrals={profileData.referrals} />
 
