@@ -57,7 +57,7 @@ function AvatarDrop() {
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleClick as React.MouseEventHandler<HTMLButtonElement>} 
                     alt="Remy Sharp" 
-                    src={perf.src} 
+                    
                 />
 
                 <Menu
@@ -85,7 +85,7 @@ function AvatarDrop() {
             </div>
             <div className='m-0'>
                 <p>{userName}</p>
-                <p>Força e Ação</p>
+                <p></p>
             </div>
         </div>
     );

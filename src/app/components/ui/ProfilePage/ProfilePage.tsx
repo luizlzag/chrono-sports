@@ -133,16 +133,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50 flex flex-col p-4">
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
-          <Image
-            src={perf} 
-            alt="Foto do Usuário"
-            width={60}
-            height={60}
-            className="rounded-full"
-          />
           <div>
             <h1 className="text-xl font-bold text-black">{userName}</h1>
-            <p className="text-gray-600">Força e Ação</p>
           </div>
         </div>
         {currentGym && (
@@ -231,9 +223,9 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <ChronoCoinsSection chronoCoins={profileData.totalSalesAmount} minWithdrawal={100} />
+      {/* <ChronoCoinsSection chronoCoins={profileData.totalSalesAmount} minWithdrawal={100} /> */}
 
-      <ReferralsSection referrals={profileData.referrals} />
+      {/* <ReferralsSection referrals={profileData.referrals} /> */}
 
       <section className="mb-6 pb-20">
         <div className="bg-white p-4 rounded-lg shadow-md">

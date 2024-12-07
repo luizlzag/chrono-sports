@@ -147,14 +147,11 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
     const handlePayment = () => {
         const totalAmount = calculateTotal();
         const cartParam = JSON.stringify(cartItems);
-    
-        // Criptografa os dados do carrinho
-        const encryptedCart = encryptData(cartParam, '/Bin/Bash#2507'); // Use uma chave secreta forte
-        const encryptedAmount = encryptData(totalAmount, '/Bin/Bash#2507'); // Use uma chave secreta forte
-    
-        // Redireciona para a página de checkout com os dados criptografados
-        router.push(`/pages/checkout?amount=${encryptedAmount}&cart=${encodeURIComponent(encryptedCart)}`);
-    };
+      
+        // Redireciona para a página de checkout com os dados sem criptografia
+        router.push(`/pages/checkout?amount=${totalAmount}&cart=${encodeURIComponent(cartParam)}`);
+      };
+      
 
 
     return (

@@ -53,12 +53,12 @@ function Itens() {
       {itensList.map((i) => (
         <div className="flex mx-3" key={i.id}>
           <div className="w-screen rounded shadow py-3 px-3 mb-3 bg-white grid grid-cols-2">
-            <Image
-              src={i.img || "/luvavermelha.png"} // Usa a imagem da API ou uma default
-              alt={i.name}
-              width={80}
-              height={80}
-            />
+          <Image
+            src={i.img && i.img.startsWith("/") ? i.img : "/luvavermelha.png"}
+            alt={i.name}
+            width={80}
+            height={80}
+          />
             <div className="bg-white">
               <p className="font-semibold bg-white">{i.name}</p>
               <p className="bg-red-600 px-2 py-2 rounded-md text-white font-semibold text-center text-lg">
