@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiLink = "https://muay-thai-sales-api.vercel.app";
+const apiLink = "https://new-muay-thai-sales-api.vercel.app";
 
 export const login = async (email, password) => {
     try {
@@ -27,7 +27,6 @@ export const getProducts = async () => {
         return err.response.data;
     }
 }
-
 
 export const getStock = async () => {
     try {
@@ -59,7 +58,7 @@ export const getGoals = async () => {
     }
 }
 
-export const getSalles = async () => {
+export const getSales = async () => {
     try {
         const token = localStorage.getItem('token');
         const gymId = JSON.parse(localStorage.getItem('user')).gymId;
@@ -71,5 +70,44 @@ export const getSalles = async () => {
         return res.data;
     } catch (err) {
         return err.response.data;
+    }
+}
+
+export const createPayment = async (paymentType) => {
+    try {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        const cartItems = JSON.parse(localStorage.getItem('cartItems'));
+
+        if (!cartItems || !user || !token) {
+            return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente' };
+        }
+
+        let productsData = cartItems.map(item => {
+            return {
+                productId: item.id,
+                quantity: item.quantity
+            }
+        });
+
+        let data = JSON.stringify({
+            userId: user.id,
+            gymId: user.gymId,
+            paymentType: paymentType,
+            productsData: productsData
+        });
+
+        let headers = {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const res = await axios.post(apiLink+'/payment', data, headers);
+        return res.data;
+    } catch (err) {
+        console.log(err)
+        return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente mais tarde' };
     }
 }
