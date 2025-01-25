@@ -2,14 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { FaCoins, FaBoxes } from "react-icons/fa";
 import { FaRankingStar } from "react-icons/fa6";
-import Image from "next/image";
-import perf from "../../../../../public/perf.jpg";
-import chronoCoin from "../../../../../public/chronocoin-removebg-preview.png";
 import BackButton from "../ButtonReturn/ButtonReturn";
-import ChronoCoinsSection from "./ChronoCoins";
-import ReferralsSection from "./ReferralsSection";
 import { Tooltip, ClickAwayListener } from "@mui/material";
-import { getStock, getGoals, getSalles } from "../../../../api/axios/api";
+import { getStock, getGoals, getSales } from "../../../../api/axios/api";
 
 // Tipos para facilitar a tipagem futura com TypeScript
 interface Reward {
@@ -56,7 +51,7 @@ export default function ProfilePage() {
       try {
         const stockData = await getStock().catch(() => ({ products: [] }));
         const goalsData = await getGoals().catch(() => ({ goals: [] }));
-        const salesData = await getSalles().catch(() => ({ sales: [] }));
+        const salesData = await getSales().catch(() => ({ sales: [] }));
 
         const stockStatus = stockData.products.map((product: { name: string, stock: { quantity: number }[] }) => ({
           name: product.name,

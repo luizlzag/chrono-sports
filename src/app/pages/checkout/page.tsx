@@ -1,13 +1,15 @@
-"use client"; 
-import PaymentCheckout from '../../components/ui/payament/PayamentComponent';
-import React, { Suspense } from 'react';
+import { Suspense } from "react";
+import PaymentPage from "./PaymentPage";
+import { PaymentProvider } from "@/context/PaymentContext";
 
-function PayamentPage() {
-    return ( 
-        <Suspense fallback={<div>Loading...</div>}>
-      <PaymentCheckout />
-    </Suspense>
-     );
+const Page = () => {
+    return (
+        <PaymentProvider>
+            <Suspense fallback={<div>Carregando...</div>}>
+                <PaymentPage />
+            </Suspense>
+        </PaymentProvider>
+    );
 }
 
-export default PayamentPage;
+export default Page;

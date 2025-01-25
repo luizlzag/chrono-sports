@@ -138,25 +138,20 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
         localStorage.setItem('cart', JSON.stringify(updatedItems));
     };
     const router = useRouter();
-
-    const encryptData = (data: string | number, secretKey: string) => {
-        return CryptoJS.AES.encrypt(String(data), secretKey).toString();
-    };
     
-    // Dentro do handlePayment
     const handlePayment = () => {
         const totalAmount = calculateTotal();
         const cartParam = JSON.stringify(cartItems);
-      
-        // Redireciona para a página de checkout com os dados sem criptografia
-        router.push(`/pages/checkout?amount=${totalAmount}&cart=${encodeURIComponent(cartParam)}`);
-      };
-      
 
+        localStorage.setItem('cartItems', cartParam);
+        localStorage.setItem('totalAmount', totalAmount.toString());
+      
+        router.push('/pages/checkout');
+    }
 
     return (
         <>
-         <div className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer">
+            <div className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer">
                 <IoMdCart size={24} color="white" onClick={() => setOpenCart(!openCart)} />
             </div>
             {openCart && (
