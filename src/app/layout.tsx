@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Passion_One } from "next/font/google";
+import { TransactionProvider } from "@/context/TransactionContext";
 
 import "./globals.css";
 
@@ -19,7 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <TransactionProvider>
+          {children}
+        </TransactionProvider>
+      </body>
     </html>
   );
 }

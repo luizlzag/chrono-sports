@@ -1,25 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import { IoMdAddCircle, IoMdCart, IoMdAdd, IoMdRemove, IoMdTrash } from "react-icons/io";
 import { useRouter } from "next/navigation";
-import CryptoJS from 'crypto-js';
 import { getProducts } from "@/api/axios/api";
-
-type Item = {
-    id: string;
-    imageUrl: string;
-    name: string;
-    price: number;
-    quantity?: number;
-};
+import { useTransaction } from "@/context/TransactionContext";
+import { Item } from "@/app/types/cartTypes";
 
 const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> = ({ addToCart, searchTerm }) => {
     const [itensList, setItensList] = useState<Item[]>([]);  // Armazena os itens da API
     const [loading, setLoading] = useState<boolean>(true);   // Estado de carregamento
     const [error, setError] = useState<string | null>(null); // Estado de erro
     
-
     // Carregar produtos da API
     useEffect(() => {
         const fetchProducts = async () => {
@@ -97,23 +89,28 @@ const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> =
 
 const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React.SetStateAction<boolean>> }> = ({ openCart, setOpenCart }) => {
     const [cartItems, setCartItems] = useState<Item[]>([]);
+    const [loading, setLoading] = useState(false);
+    const { transaction, updateTransaction } = useTransaction();
 
     useEffect(() => {
-        if (openCart) {
-            const storedCart = localStorage.getItem('cart');
-            if (storedCart) {
-                const parsedCartItems: Item[] = JSON.parse(storedCart);
-                const updatedCartItems = parsedCartItems.map(item => ({
-                    ...item,
-                    quantity: item.quantity ?? 1,
-                }));
-                setCartItems(updatedCartItems);
-            }
+        if (transaction) {
+            setCartItems(transaction.cart);
         }
-    }, [openCart]);
+    }, [transaction]);
 
     const calculateTotal = (): number => {
         return cartItems.reduce((total, item) => total + (item.price * (item.quantity ?? 1)), 0);
+    };
+
+    const updateCart = async (updatedItems: Item[]) => {
+        setLoading(true);
+        if (!transaction) {
+            alert("Erro ao atualizar carrinho: transação não encontrada.");
+            setLoading(false);
+            return;
+        }
+        await updateTransaction({ cart: updatedItems }, transaction?.id);
+        setLoading(false);
     };
 
     const incrementQuantity = (itemId: string) => {
@@ -121,7 +118,7 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
             item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
         );
         setCartItems(updatedItems);
-        localStorage.setItem('cart', JSON.stringify(updatedItems));
+        updateCart(updatedItems);
     };
 
     const decrementQuantity = (itemId: string) => {
@@ -129,24 +126,31 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
             item.id === itemId && (item.quantity ?? 1) > 1 ? { ...item, quantity: (item.quantity ?? 1) - 1 } : item
         );
         setCartItems(updatedItems);
-        localStorage.setItem('cart', JSON.stringify(updatedItems));
+        updateCart(updatedItems);
     };
 
     const removeItem = (itemId: string) => {
         const updatedItems = cartItems.filter(item => item.id !== itemId);
         setCartItems(updatedItems);
-        localStorage.setItem('cart', JSON.stringify(updatedItems));
+        updateCart(updatedItems);
     };
+
     const router = useRouter();
     
     const handlePayment = () => {
-        const totalAmount = calculateTotal();
-        const cartParam = JSON.stringify(cartItems);
-
-        localStorage.setItem('cartItems', cartParam);
-        localStorage.setItem('totalAmount', totalAmount.toString());
-      
+        if (!transaction?.id) {
+            alert("Carrinho vazio, por favor adicione itens ao carrinho antes de prosseguir.");
+            return;
+        }
         router.push('/pages/checkout');
+    }
+
+    if (loading) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
+            </div>
+        )
     }
 
     return (
@@ -196,10 +200,22 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
 const CartContainer: React.FC = () => {
     const [openCart, setOpenCart] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { transaction, updateTransaction, createTransaction } = useTransaction();
 
     const addToCart = (item: Item) => {
-        const cartData = localStorage.getItem('cart');
-        let cart: Item[] = cartData ? JSON.parse(cartData) : [];
+        setLoading(true);
+
+        if (transaction === undefined) return;
+
+        if (!transaction) {
+            createTransaction({ cart: [item] });
+            setOpenCart(true);
+            setLoading(false);
+            return;
+        }
+
+        let cart: Item[] = transaction.cart;
 
         const existingItem = cart.find(cartItem => cartItem.id === item.id);
         if (existingItem) {
@@ -208,25 +224,36 @@ const CartContainer: React.FC = () => {
             cart.push(item);
         }
 
-        localStorage.setItem('cart', JSON.stringify(cart));
-        setOpenCart(true); // Abre o carrinho
+        updateTransaction({ cart }, transaction.id);
+        setOpenCart(true);
+        setLoading(false);
     };
 
     return (
-        <div className="container p-4 mx-auto mt-20">
-            <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Buscar itens..."
-                    className="w-full p-2 border rounded"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+        <div className="container p-4 mx-auto mt-20 relative">
+            {loading && (
+                <>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
+                    </div>
+                    <div className="fixed inset-0 z-40"></div> {/* Adicione esta linha */}
+                </>
+            )}
+            <div className={`${loading ? 'opacity-50' : 'opacity-100'}`}>
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Buscar itens..."
+                        className="w-full p-2 border rounded"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <Itens addToCart={addToCart} searchTerm={searchTerm} />
+                <ItensCart openCart={openCart} setOpenCart={setOpenCart} />
             </div>
-            <Itens addToCart={addToCart} searchTerm={searchTerm} />
-            <ItensCart openCart={openCart} setOpenCart={setOpenCart} />
         </div>
-    );
+    );    
 };
 
 export default CartContainer;
