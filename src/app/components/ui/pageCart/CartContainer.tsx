@@ -123,7 +123,7 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
 
     const decrementQuantity = (itemId: string) => {
         const updatedItems = cartItems.map(item =>
-            item.id === itemId && (item.quantity ?? 1) > 1 ? { ...item, quantity: (item.quantity ?? 1) - 1 } : item
+            item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) - 1 } : item
         );
         setCartItems(updatedItems);
         updateCart(updatedItems);
