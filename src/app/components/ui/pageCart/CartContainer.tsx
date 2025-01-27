@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import { getProducts } from "@/api/axios/api";
 import { useTransaction } from "@/context/TransactionContext";
 import { Item } from "@/app/types/cartTypes";
+import { ClipLoader } from "react-spinners";
 
-const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> = ({ addToCart, searchTerm }) => {
+const Itens: React.FC<{ 
+    addToCart: (item: Item) => void, 
+    searchTerm: string
+}> = ({ addToCart, searchTerm }) => {
     const [itensList, setItensList] = useState<Item[]>([]);  // Armazena os itens da API
-    const [loading, setLoading] = useState<boolean>(true);   // Estado de carregamento
     const [error, setError] = useState<string | null>(null); // Estado de erro
     
     // Carregar produtos da API
@@ -28,8 +31,6 @@ const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> =
             } catch (err) {
                 console.error("Erro ao carregar produtos:", err);
                 setError("Erro ao carregar produtos"); // Trata erros
-            } finally {
-                setLoading(false); // Termina o carregamento
             }
         };
 
@@ -43,19 +44,12 @@ const Itens: React.FC<{ addToCart: (item: Item) => void, searchTerm: string }> =
           )
         : []; // Garante que `itensList` é um array
 
-    // Exibe uma mensagem de carregamento enquanto a requisição está em andamento
-    if (loading) {
-        return <p>Carregando produtos...</p>;
-    }
-
     // Exibe uma mensagem de erro se houver falha na requisição
     if (error) {
         return <p>{error}</p>;
     }
     
-
     return (
-        
         <div className="md:grid md:grid-cols-4 gap-4">
             {filteredItems.length > 0 ? filteredItems.map((i) =>
                 <div className="flex" key={i.id}>
@@ -95,6 +89,8 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
     useEffect(() => {
         if (transaction) {
             setCartItems(transaction.cart);
+        } else {
+            setCartItems([]);
         }
     }, [transaction]);
 
@@ -139,7 +135,7 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
     
     const handlePayment = () => {
         if (!transaction?.id) {
-            alert("Carrinho vazio, por favor adicione itens ao carrinho antes de prosseguir.");
+            alert("Carrinho vazio, por favor adicione itens antes de prosseguir.");
             return;
         }
         router.push('/pages/checkout');
@@ -148,12 +144,9 @@ const ItensCart: React.FC<{ openCart: boolean, setOpenCart: React.Dispatch<React
     return (
         <>
             {loading && (
-                <>
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
-                    </div>
-                    <div className="fixed inset-0 z-40"></div>
-                </>
+                <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
+                    <ClipLoader size={60} color="#111" />
+                </div>
             )}
             <div className={`relative ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <div className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer">
@@ -238,12 +231,9 @@ const CartContainer: React.FC = () => {
     return (
         <div className="container p-4 mx-auto mt-20 relative">
             {loading && (
-                <>
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
-                    </div>
-                    <div className="fixed inset-0 z-40"></div>
-                </>
+                <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
+                    <ClipLoader size={60} color="#fff" />
+                </div>
             )}
             <div className={`${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <div className="mb-4">
@@ -259,7 +249,7 @@ const CartContainer: React.FC = () => {
                 <ItensCart openCart={openCart} setOpenCart={setOpenCart} />
             </div>
         </div>
-    );    
+    );
 };
 
 export default CartContainer;

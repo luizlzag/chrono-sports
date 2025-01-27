@@ -57,6 +57,7 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
     const handleUpdateTransaction = async (transactionData: TransactionRequest, transactionId: number) => {
         try {
             const response = await updateTransaction(transactionData, transactionId);
+            if (!response) setTransaction(null);
             setTransaction(response);
         } catch (error) {
             console.error("Erro ao atualizar transação:", error);
