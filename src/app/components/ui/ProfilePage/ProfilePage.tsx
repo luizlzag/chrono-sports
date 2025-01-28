@@ -63,7 +63,7 @@ export default function ProfilePage() {
           reward: goal.reward,
         }));
 
-        const totalSalesAmount = salesData.sales.reduce((sum: number, sale: { total: number }) => sum + sale.total, 0);
+        const totalSalesAmount = (salesData.sales || []).reduce((sum: number, sale: { total: number }) => sum + sale.total, 0);
 
         const data: ProfileData = {
           totalSales: 40,

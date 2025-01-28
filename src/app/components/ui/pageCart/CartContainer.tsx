@@ -197,7 +197,23 @@ const CartContainer: React.FC = () => {
     const [openCart, setOpenCart] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
-    const { transaction, updateTransaction, createTransaction } = useTransaction();
+    const { transaction, updateTransaction, createTransaction, fetchTransaction } = useTransaction();
+    const [isFetched, setIsFetched] = useState(false);
+
+    useEffect(() => {
+        if (!isFetched) {
+            const fetchTransactionData = async () => {
+                try {
+                    await fetchTransaction();
+                    setIsFetched(true); // Atualiza estado para indicar que a função foi chamada
+                } catch (error) {
+                    console.error('Error fetching transaction:', error);
+                }
+            };
+
+            fetchTransactionData();
+        }
+    }, [fetchTransaction, isFetched]);
 
     const addToCart = (item: Item) => {
         setLoading(true);

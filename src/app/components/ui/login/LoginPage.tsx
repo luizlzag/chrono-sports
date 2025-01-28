@@ -4,11 +4,9 @@ import logo from "../../../../../public/logo.png";
 import Image from "next/image";
 import { login } from "../../../../api/axios/api";
 import { useRouter } from "next/navigation";
-import { useTransaction } from "@/context/TransactionContext";
 
 function LoginPage() {
     const router = useRouter();
-    const { fetchTransaction } = useTransaction();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | undefined>(undefined);
@@ -20,7 +18,6 @@ function LoginPage() {
 
         if (response.token) {
             localStorage.setItem("token", response.token);
-            await fetchTransaction();  // Obtendo dados da transação após login
             router.push("/pages/home");
         } else {
             setError(response.message);

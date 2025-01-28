@@ -73,17 +73,16 @@ export const getSales = async () => {
     }
 }
 
-export const createPayment = async (paymentType) => {
+export const createPayment = async (paymentType, transaction) => {
     try {
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user'));
-        const cartItems = JSON.parse(localStorage.getItem('cartItems'));
 
-        if (!cartItems || !user || !token) {
+        if (!transaction || !user || !token) {
             return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente' };
         }
 
-        let productsData = cartItems.map(item => {
+        let productsData = transaction.cart.map(item => {
             return {
                 productId: item.id,
                 quantity: item.quantity
@@ -93,6 +92,7 @@ export const createPayment = async (paymentType) => {
         let data = JSON.stringify({
             userId: user.id,
             gymId: user.gymId,
+            transactionId: transaction.id,
             paymentType: paymentType,
             productsData: productsData
         });

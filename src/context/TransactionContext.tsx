@@ -7,7 +7,7 @@ interface TransactionRequest {
     cart: Item[];
 }
 
-interface TransactionResponse {
+export interface TransactionResponse {
     id: number;
     gymId: number;
     userId: number;
