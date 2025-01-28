@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { QrCodePix } from 'qrcode-pix';
+import { useRouter } from 'next/navigation';
+import { useTransaction, TransactionResponse } from '@/context/TransactionContext';
 import domtoimage from 'dom-to-image';
 import PixPayment from '../../components/ui/payment/PixPayment';
 import CardPayment from '../../components/ui/payment/CardPayment';
@@ -11,13 +13,16 @@ const formatter = new Intl.NumberFormat('pt-BR', {
 });
 
 export default function PaymentPage() {
+    const router = useRouter();
+    const { transaction } = useTransaction();
+    const divRef = useRef<HTMLDivElement | null>(null);
+
+    const [cart, setCart] = useState<TransactionResponse | null>(null);
     const [totalAmount, setTotalAmount] = useState<number>(0);
     const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD'>('PIX');
-
     const [qrCode, setQrCode] = useState<string>('');
     const [codigo, setCodigo] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const divRef = useRef<HTMLDivElement | null>(null);
 
     // Informações fixas do PIX
     const pixInfo = useMemo(() => ({
@@ -67,22 +72,19 @@ export default function PaymentPage() {
     }
     
     useEffect(() => {
-        // Obtém os dados do localStorage da compra
-        const cartParam = localStorage.getItem('cartItems');
-        const amountParam = localStorage.getItem('totalAmount');
+        if (!transaction) {
+            alert('Nenhum pedido encontrado. Redirecionando para a página inicial...');
+            router.push('/pages/home');
+            return;
+        };
 
-        if (cartParam && amountParam) {
-            const parsedCart = JSON.parse(cartParam);
-            const parsedAmount = parseFloat(amountParam);
+        setCart(transaction);
+        const parsedAmount = parseFloat(transaction?.totalAmount);
 
-            console.log('Dados encontrados no localStorage:', parsedCart, parsedAmount);
+        setTotalAmount(parsedAmount);
+        generatePix(parsedAmount);
 
-            setTotalAmount(parsedAmount);
-            generatePix(parsedAmount);
-        } else {
-            console.error('Dados não encontrados no localStorage');
-        }
-    }, [generatePix]);
+    }, [router, transaction, generatePix]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -99,7 +101,7 @@ export default function PaymentPage() {
                 divRef={divRef}
             />
         ) : (
-            <CardPayment paymentMethod={paymentMethod} onBack={() => setPaymentMethod("PIX")} />
+            <CardPayment router={router} transaction={cart} paymentMethod={paymentMethod} onBack={() => setPaymentMethod("PIX")} />
         )}
         </div>
     );

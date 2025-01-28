@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiLink = "https://new-muay-thai-sales-api.vercel.app";
+const apiLink = "https://new-muay-thai-sales-api-dev.vercel.app";
 
 export const login = async (email, password) => {
     try {
@@ -73,17 +73,16 @@ export const getSales = async () => {
     }
 }
 
-export const createPayment = async (paymentType) => {
+export const createPayment = async (paymentType, transaction) => {
     try {
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user'));
-        const cartItems = JSON.parse(localStorage.getItem('cartItems'));
 
-        if (!cartItems || !user || !token) {
+        if (!transaction || !user || !token) {
             return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente' };
         }
 
-        let productsData = cartItems.map(item => {
+        let productsData = transaction.cart.map(item => {
             return {
                 productId: item.id,
                 quantity: item.quantity
@@ -93,6 +92,7 @@ export const createPayment = async (paymentType) => {
         let data = JSON.stringify({
             userId: user.id,
             gymId: user.gymId,
+            transactionId: transaction.id,
             paymentType: paymentType,
             productsData: productsData
         });
@@ -109,5 +109,71 @@ export const createPayment = async (paymentType) => {
     } catch (err) {
         console.log(err)
         return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente mais tarde' };
+    }
+}
+
+export const getRecentTransaction = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(apiLink+'/transaction/active', {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return res.data;
+    } catch (err) {
+        return err.response.data;
+    }
+}
+
+export const createTransaction = async (transactionData) => {
+    try {
+        const token = localStorage.getItem('token');
+        const data = JSON.stringify(transactionData);
+        let headers = {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const res = await axios.post(apiLink+'/transaction', data, headers);
+        return res.data;
+    } catch (err) {
+        return err.response.data;
+    }
+}
+
+export const updateTransaction = async (transactionData, transactionId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const data = JSON.stringify(transactionData);
+        let headers = {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const res = await axios.put(apiLink+'/transaction/'+transactionId, data, headers);
+        return res.data;
+    } catch (err) {
+        return err.response.data;
+    }
+}
+
+export const getTransaction = async (transactionId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(apiLink+'/transaction/'+transactionId, {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return res.data;
+    } catch (err) {
+        return err.response.data;
     }
 }
