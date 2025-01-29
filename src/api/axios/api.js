@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiLink = "https://new-muay-thai-sales-api-dev.vercel.app";
+const apiLink = "https://new-muay-thai-sales-api.vercel.app";
 
 export const login = async (email, password) => {
     try {
