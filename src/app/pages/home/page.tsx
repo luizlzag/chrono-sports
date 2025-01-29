@@ -1,13 +1,13 @@
 import HeaderPage from '@/app/components/ui/header/HeaderPage';
-import CartContainer from '@/app/components/ui/pageCart/CartContainer';
+import SalesManagement from '@/app/components/ui/pageCart/SalesManagement';
 import * as React from 'react';
 function HomePage() {
     return (
         <div>
             <HeaderPage/>
-            <CartContainer/>
+            <SalesManagement/>
         </div>
-      );
+    );
 }
 
 export default HomePage;
