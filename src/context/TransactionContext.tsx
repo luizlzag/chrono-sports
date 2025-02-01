@@ -12,6 +12,7 @@ export interface TransactionResponse {
     id: number;
     gymId: number;
     userId: number;
+    customerName: string | null;
     paymentLinkId: string | null;
     paymentIntentId: string | null;
     status: string;

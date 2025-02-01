@@ -1,3 +1,4 @@
+// components/CardPayment.tsx
 import { createPayment } from "@/api/axios/api";
 import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
@@ -10,16 +11,14 @@ import { useTransaction } from "@/context/TransactionContext";
 import { motion } from "framer-motion";
 
 interface CardPaymentProps {
-  onBack: () => void;
-  paymentMethod: string;
   transaction: TransactionResponse | null;
   router: AppRouterInstance;
+  onBack: () => void; // Callback para notificar que devemos voltar à etapa anterior (checkoutStep === "cart")
 }
 
 export default function CardPayment({
   router,
   transaction,
-  paymentMethod,
   onBack,
 }: CardPaymentProps) {
   const { getTransaction } = useTransaction();
@@ -28,12 +27,14 @@ export default function CardPayment({
   const [copied, setCopied] = useState(false);
   const [success, setSuccess] = useState(false); // Estado para animação de sucesso
 
+  const paymentMethod = "CREDIT_CARD";
+
   useEffect(() => {
     if (!transaction) {
       alert(
-        "Erro ao criar link de pagamento. Redirecionando para a página principal."
+        "Erro ao criar link de pagamento. Redirecionando para o carrinho."
       );
-      router.push("/pages/home");
+      onBack();
       return;
     }
 
@@ -51,23 +52,28 @@ export default function CardPayment({
       };
       fetchPaymentData();
     }
-  }, [router, transaction, paymentMethod, paymentLink, setPaymentLink]);
+  }, [onBack, paymentLink, paymentMethod, router, setPaymentLink, transaction]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        if (transaction) {
-          await getTransaction(transaction?.id);
-          if (transaction?.status === "paid") {
+        if (transaction && !success) {
+          await getTransaction(transaction.id);
+          // Se o status da transação for "paid", o pagamento foi concluído com sucesso
+          if (transaction.status === "paid") {
             clearInterval(interval);
             setSuccess(true);
-            setTimeout(() => router.push("/pages/home"), 3000);
+            // Após 3 segundos, volta para o carrinho (checkoutStep === "cart")
+            setTimeout(() => {
+              onBack();
+            }, 3000);
+            onBack();
           }
         } else {
           alert(
-            "Erro ao atualizar transação. Redirecionando para a página principal."
-          )
-          router.push("/pages/home");
+            "Erro ao atualizar transação. Redirecionando para o carrinho."
+          );
+          onBack();
           return;
         }
       } catch (error) {
@@ -76,7 +82,7 @@ export default function CardPayment({
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [getTransaction, router, transaction]);
+  }, [getTransaction, onBack, transaction, success]);
 
   const handleCopy = () => {
     if (paymentLink) {
