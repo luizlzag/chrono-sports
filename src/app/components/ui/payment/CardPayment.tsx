@@ -133,14 +133,18 @@ export default function CardPayment({
       </div>
       {copied && <div className="text-green-600 text-sm mb-2">Copiado!</div>}
       <button
-        onClick={() =>
-          window.open(
-            `https://web.whatsapp.com/send?text=${encodeURIComponent(
-              paymentLink || ""
-            )}`,
-            "_blank"
-          )
-        }
+        onClick={() => {
+          const isMobile =
+            /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              navigator.userAgent
+            );
+        
+          const whatsappBaseURL = isMobile
+            ? "https://wa.me/?text="
+            : "https://web.whatsapp.com/send?text=";
+        
+          window.open(whatsappBaseURL + encodeURIComponent(paymentLink || ""), "_blank");
+        }}
         className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 flex items-center justify-center w-full mb-2"
       >
         <Send size={20} className="mr-2" /> Enviar via WhatsApp
