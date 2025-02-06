@@ -36,7 +36,7 @@ const Content = ({ activePage }: { activePage: string }) => {
     return (
       <>
         {activePage === "transactions" && (
-          <div className="w-full h-full shadow-md p-6" style={{ backgroundColor: "#fafafa" }}>
+          <div className="w-full shadow-md" style={{ backgroundColor: "#fafafa" }}>
             <TransactionList />
           </div>
         )}
