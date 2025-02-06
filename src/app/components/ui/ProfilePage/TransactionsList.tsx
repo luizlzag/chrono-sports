@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, ChevronDown, Circle } from "lucide-react";
 
 // Componente para exibir o status de pagamento
@@ -35,7 +35,7 @@ const TransactionItem = ({
   status: string;
 }) => {
   return (
-    <tr className="hover:bg-gray-50 transition-colors">
+    <tr className="hover:bg-gray-50 transition-colors cursor-pointer">
       <td className="p-4 text-sm text-gray-700">#{id}</td>
       <td className="p-4 text-sm text-gray-700">{client}</td>
       <td className="p-4 text-sm text-gray-700">{date}</td>
@@ -52,66 +52,66 @@ const TransactionItem = ({
 const TransactionList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [searchField, setSearchField] = useState<"client" | "date">("client");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Todos");
+  const [paymentFilter, setPaymentFilter] = useState("Todos");
 
   const transactions = [
     { id: "0001", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
     { id: "0002", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
     { id: "0003", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
     { id: "0004", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-    // Adicione mais transações para testar a paginação
+    { id: "0005", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
+    { id: "0006", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
+    { id: "0007", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
+    { id: "0008", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
+    { id: "0009", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
+    { id: "0010", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
+    { id: "0011", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
+    { id: "0012", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
+    { id: "0013", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
+    { id: "0014", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
+    { id: "0015", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
+    { id: "0016", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
+    { id: "0017", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
+    { id: "0018", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
+    { id: "0019", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
+    { id: "0020", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
   ];
 
-  const totalItems = transactions.length;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, paymentFilter]);
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = searchField === "client" 
+      ? transaction.client.toLowerCase().includes(searchQuery.toLowerCase())
+      : transaction.date.includes(searchQuery);
+    
+    const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
+    const matchesPayment = paymentFilter === "Todos" || transaction.payment === paymentFilter;
+    
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
+
+  // Resetamos a página quando o usuário muda a quantidade de itens
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const totalItems = filteredTransactions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTransactions = transactions.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const currentTransactions = filteredTransactions.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const renderPagination = () => {
-    const pages = [];
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => handlePageChange(i)}
-          className={`px-3 py-1 mx-1 border rounded ${
-            currentPage === i ? "bg-blue-500 text-white" : "bg-white"
-          }`}
-        >
-          {i}
-        </button>
-      );
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
-
-    return (
-      <div className="flex justify-center items-center">
-        {currentPage > 1 && (
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            className="px-3 py-1 mx-1 border rounded"
-          >
-            &lt;
-          </button>
-        )}
-        {pages}
-        {currentPage < totalPages && (
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="px-3 py-1 mx-1 border rounded"
-          >
-            &gt;
-          </button>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -119,21 +119,49 @@ const TransactionList = () => {
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Gestão de Pedidos</h2>
 
-        {/* Filtros e busca */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Procurar..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-1 max-w-xl">
+            <div className="relative flex items-stretch flex-grow">
+              <select 
+                value={searchField}
+                onChange={(e) => setSearchField(e.target.value as "client" | "date")}
+                className="border rounded-l-lg px-3 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="client">Nome</option>
+                <option value="date">Data</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Procurar..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 pl-2 pr-4 py-2 border-t border-b rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              />
+            </div>
           </div>
-          <select className="ml-4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="Todos">Todos</option>
-            <option value="Pago">Pago</option>
-            <option value="Processando">Processando</option>
-          </select>
+
+          <div className="flex gap-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Todos">Todos Status</option>
+              <option value="Pago">Pago</option>
+              <option value="Processando">Processando</option>
+            </select>
+
+            <select
+              value={paymentFilter}
+              onChange={(e) => setPaymentFilter(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Todos">Todos Pagamentos</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Débito">Débito</option>
+              <option value="Pix">Pix</option>
+            </select>
+          </div>
         </div>
 
         {/* Tabela de transações */}
@@ -142,10 +170,7 @@ const TransactionList = () => {
             <thead className="bg-gray-100">
               <tr>
                 {["PEDIDO", "CLIENTE", "DATA", "TOTAL", "PAGAMENTO", "STATUS"].map((header) => (
-                  <th
-                    key={header}
-                    className="p-3 text-sm font-medium text-gray-600 text-left whitespace-nowrap"
-                  >
+                  <th key={header} className="p-3 text-sm font-medium text-gray-600 text-left">
                     {header}
                   </th>
                 ))}
@@ -161,30 +186,55 @@ const TransactionList = () => {
           {/* Rodapé com paginação */}
           <div className="flex justify-between items-center p-4 border-t">
             <span className="text-sm text-gray-600">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems}
+              Mostrando {startIndex + 1}-{endIndex} de {totalItems}
             </span>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Itens por página:</span>
               <select
                 value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="px-3 py-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={handleItemsPerPageChange}
+                className="px-3 py-1 border rounded-lg"
               >
+                <option value="2">2</option>
                 <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
+                {/* <option value="10">10</option> */}
               </select>
             </div>
           </div>
 
           {/* Paginação */}
           <div className="flex justify-center p-4 border-t">
-            {renderPagination()}
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 mx-1 border rounded bg-red-600 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              &lt;
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 mx-1 border rounded ${currentPage === page ? "bg-red-600 text-white" : "bg-white"}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 mx-1 border rounded bg-red-600 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              &gt;
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default TransactionList;
