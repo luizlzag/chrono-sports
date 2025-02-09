@@ -84,7 +84,7 @@ const TransactionList = () => {
     setCurrentPage(1);
   };
 
-  const totalItems = filteredTransactions.length;
+  const totalItems = filteredTransactions.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
