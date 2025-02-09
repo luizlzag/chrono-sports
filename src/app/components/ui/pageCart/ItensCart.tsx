@@ -1,10 +1,11 @@
 // components/ItensCart.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IoMdAdd, IoMdRemove, IoMdTrash } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
 import { useTransaction } from "@/context/TransactionContext";
 import { Item } from "@/app/types/cartTypes";
+
 import CheckoutStep from "../payment/CheckoutStep";
 
 interface ItensCartProps {
@@ -13,27 +14,20 @@ interface ItensCartProps {
 }
 
 export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) => {
-    const [cartItems, setCartItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<string>("cartao");
+    const [paymentMethod, setPaymentMethod] = useState<string>("CREDIT_CARD");
     const [customerName, setCustomerName] = useState<string>("");
-    // Usamos checkoutStep para controlar a etapa atual: "cart" para o carrinho e "payment" para a etapa de pagamento.
     const [checkoutStep, setCheckoutStep] = useState<"cart" | "payment">("cart");
 
     const router = useRouter();
 
     const { transaction, updateTransaction, fetchTransaction } = useTransaction();
 
-    useEffect(() => {
-        if (transaction) {
-            setCartItems(transaction.cart);
-        } else {
-            setCartItems([]);
-        }
-    }, [transaction]);
-
     const calculateTotal = (): number => {
-        return cartItems.reduce((total, item) => total + item.price * (item.quantity ?? 1), 0);
+        if (!transaction) {
+            return 0;
+        }
+        return transaction.cart.reduce((total, item) => total + item.price * (item.quantity ?? 1), 0);
     };
 
     const updateCart = async (updatedItems: Item[]) => {
@@ -48,46 +42,51 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
     };
 
     const incrementQuantity = (itemId: string) => {
-        const updatedItems = cartItems.map((item) =>
-        item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item);
-        setCartItems(updatedItems);
+        const updatedItems = transaction?.cart.map(
+            (item) => item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
+        ) ?? [];
         updateCart(updatedItems);
     };
 
     const decrementQuantity = (itemId: string) => {
-        const updatedItems = cartItems.map((item) =>
+        const updatedItems = transaction?.cart.map((item) =>
         item.id === itemId
             ? { ...item, quantity: Math.max((item.quantity ?? 1) - 1, 1) }
             : item
-        );
-        setCartItems(updatedItems);
+        ) ?? [];
         updateCart(updatedItems);
     };
 
     const removeItem = (itemId: string) => {
-        const updatedItems = cartItems.filter((item) => item.id !== itemId);
-        setCartItems(updatedItems);
+        if (!transaction) {
+            alert("Erro ao remover item: transação não encontrada.");
+            return;
+        }
+        const updatedItems = transaction.cart.filter((item) => item.id !== itemId);
         updateCart(updatedItems);
     };
 
     // Verifica se o botão de pagamento deve estar desabilitado (exemplo para Pix com nome curto)
     const isPaymentButtonDisabled = (): boolean => {
-        if (paymentMethod === "pix" && customerName.trim().length < 3) {
+        if (customerName.trim().length < 3) {
             return true;
         }
-        if (cartItems.length === 0) {
+        if (transaction?.cart.length === 0) {
             return true;
         }
         return false;
     };
 
     // Em vez de redirecionar para outra página, avançamos para a etapa de pagamento.
-    const handlePayment = () => {
+    const handlePayment = async () => {
         if (!transaction?.id) {
             alert("Carrinho vazio, por favor adicione itens antes de prosseguir.");
             return;
         }
+        setLoading(true);
+        await updateTransaction({ paymentMethod: paymentMethod, customerName: customerName }, transaction.id);
         setCheckoutStep("payment");
+        setLoading(false);
     };
 
   return (
@@ -114,8 +113,8 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                 {checkoutStep === "cart" ? (
                     <>
                     <div className="grid grid-cols-1 gap-4">
-                        {cartItems.length > 0 ? (
-                        cartItems.map((item) => (
+                        {transaction?.cart?.length ?? 0 > 0 ? (
+                        transaction?.cart.map((item) => (
                             <div
                             key={item.id}
                             className="flex items-center justify-between"
@@ -170,11 +169,10 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                             onChange={(e) => setPaymentMethod(e.target.value)}
                             className="w-full p-2 border rounded-md shadow-sm"
                         >
-                            <option value="cartao">Cartão</option>
-                            <option value="pix">Pix</option>
+                            <option value="CREDIT_CARD">Cartão</option>
+                            <option value="PIX">Pix</option>
                         </select>
                         </div>
-                        {paymentMethod === "pix" && (
                         <div className="mb-4">
                             <label className="block text-lg font-medium mb-2">
                             Nome do Cliente
@@ -187,18 +185,16 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                             placeholder="Digite o nome do cliente"
                             />
                         </div>
-                        )}
                         <button
-                        onClick={handlePayment}
-                        disabled={isPaymentButtonDisabled()}
-                        className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handlePayment}
+                            disabled={isPaymentButtonDisabled()}
+                            className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                         PAGAMENTO
                         </button>
                     </div>
                     </>
                 ) : (
-                    // Renderiza o componente CheckoutStep que, com base no paymentMethod, exibirá o formulário de pagamento adequado.
                     <CheckoutStep
                         paymentMethod={paymentMethod}
                         setCheckoutStep={setCheckoutStep}
