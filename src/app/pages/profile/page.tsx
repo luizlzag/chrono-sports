@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { ProfilePage } from '@/app/components/ui/profilePage/NewProfilePage';
+import NewProfilePage from '@/app/components/ui/profilepage/NewProfilePage';
 
 function Profile() {
     return ( 
         <div>
-            <ProfilePage/>
+            <NewProfilePage />
         </div>
     );
 }

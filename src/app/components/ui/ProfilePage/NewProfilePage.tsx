@@ -45,7 +45,7 @@ const Content = ({ activePage }: { activePage: string }) => {
     );
 };
 
-export const ProfilePage = () => {
+const NewProfilePage = () => {
   const [activePage, setActivePage] = useState("transactions");
 
   return (
@@ -56,4 +56,4 @@ export const ProfilePage = () => {
   );
 }
 
-export default ProfilePage;
+export default NewProfilePage;
