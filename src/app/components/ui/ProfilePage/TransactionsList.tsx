@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search, ChevronDown, Circle } from "lucide-react";
+import { TransactionResponse, useTransaction } from "@/context/TransactionContext";
+import { PaymentStatus, PaymentMethod } from "@/app/types/cartTypes";
 
 // Componente para exibir o status de pagamento
 const StatusBadge = ({ status }: { status: string }) => {
+  status = PaymentStatus[status] || status;
+
   const statusColors: Record<string, string> = {
     Pago: "bg-green-100 text-green-800",
     Processando: "bg-yellow-100 text-yellow-800",
+    default: "bg-gray-100 text-gray-800",
   };
 
   return (
@@ -20,35 +24,31 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 // Componente para cada item da transação
 const TransactionItem = ({
-  id,
-  client,
-  date,
-  total,
-  payment,
-  status,
+  transaction,
 }: {
-  id: string;
-  client: string;
-  date: string;
-  total: string;
-  payment: string;
-  status: string;
+  transaction: TransactionResponse
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const paymentMethod = transaction.paymentMethod ? PaymentMethod[transaction.paymentMethod] || transaction.paymentMethod : "Desconhecido";
+
   return (
-    <tr className="hover:bg-gray-50 transition-colors cursor-pointer">
-      <td className="p-4 text-sm text-gray-700">#{id}</td>
-      <td className="p-4 text-sm text-gray-700">{client}</td>
-      <td className="p-4 text-sm text-gray-700">{date}</td>
-      <td className="p-4 text-sm font-medium text-gray-900">{total}</td>
-      <td className="p-4 text-sm text-gray-700">{payment}</td>
+    <tr 
+      className="hover:bg-gray-50 transition-colors cursor-pointer"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <td className="p-4 text-sm text-gray-700">#{transaction.id}</td>
+      <td className="p-4 text-sm text-gray-700">{transaction.customerName}</td>
+      <td className="p-4 text-sm text-gray-700">{transaction.createdAt}</td>
+      <td className="p-4 text-sm font-medium text-gray-900">{transaction.totalAmount}</td>
+      <td className="p-4 text-sm text-gray-700">{paymentMethod}</td>
       <td className="p-4">
-        <StatusBadge status={status} />
+        <StatusBadge status={transaction.status} />
       </td>
     </tr>
   );
 };
 
-// Componente principal da lista de transações
 const TransactionList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -57,28 +57,11 @@ const TransactionList = () => {
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [paymentFilter, setPaymentFilter] = useState("Todos");
 
-  const transactions = [
-    { id: "0001", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
-    { id: "0002", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
-    { id: "0003", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
-    { id: "0004", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-    { id: "0005", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
-    { id: "0006", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
-    { id: "0007", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
-    { id: "0008", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-    { id: "0009", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
-    { id: "0010", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
-    { id: "0011", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
-    { id: "0012", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-    { id: "0013", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
-    { id: "0014", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
-    { id: "0015", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
-    { id: "0016", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-    { id: "0017", client: "Caetano Veloso", date: "29/01/2025", total: "R$300,00", payment: "Crédito", status: "Processando" },
-    { id: "0018", client: "Maria Bethânia", date: "25/01/2025", total: "R$189,54", payment: "Crédito", status: "Processando" },
-    { id: "0019", client: "William Bonner", date: "25/01/2025", total: "R$891,50", payment: "Débito", status: "Pago" },
-    { id: "0020", client: "Tata Werneck", date: "20/01/2025", total: "R$300,00", payment: "Pix", status: "Pago" },
-  ];
+  const { transactions, fetchTransactions } = useTransaction();
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -86,11 +69,11 @@ const TransactionList = () => {
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = searchField === "client" 
-      ? transaction.client.toLowerCase().includes(searchQuery.toLowerCase())
-      : transaction.date.includes(searchQuery);
+      ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
+      : transaction.createdAt.includes(searchQuery);
     
     const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
-    const matchesPayment = paymentFilter === "Todos" || transaction.payment === paymentFilter;
+    const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
     
     return matchesSearch && matchesStatus && matchesPayment;
   });
@@ -147,8 +130,8 @@ const TransactionList = () => {
               className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Todos">Todos Status</option>
-              <option value="Pago">Pago</option>
-              <option value="Processando">Processando</option>
+              <option value="paid">Pago</option>
+              <option value="waiting_payment">Processando</option>
             </select>
 
             <select
@@ -157,9 +140,9 @@ const TransactionList = () => {
               className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Todos">Todos Pagamentos</option>
-              <option value="Crédito">Crédito</option>
-              <option value="Débito">Débito</option>
-              <option value="Pix">Pix</option>
+              <option value="CREDIT_CARD">Crédito</option>
+              <option value="DEBIT_CARD">Débito</option>
+              <option value="PIX">Pix</option>
             </select>
           </div>
         </div>
@@ -178,7 +161,7 @@ const TransactionList = () => {
             </thead>
             <tbody>
               {currentTransactions.map((transaction) => (
-                <TransactionItem key={transaction.id} {...transaction} />
+                <TransactionItem key={transaction.id} transaction={transaction} />
               ))}
             </tbody>
           </table>
@@ -235,6 +218,5 @@ const TransactionList = () => {
     </div>
   );
 };
-
 
 export default TransactionList;

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
 import { useTransaction } from "@/context/TransactionContext";
 import { Item } from "@/app/types/cartTypes";
+
 import CheckoutStep from "../payment/CheckoutStep";
 
 interface ItensCartProps {
@@ -15,7 +16,7 @@ interface ItensCartProps {
 export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) => {
     const [cartItems, setCartItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<string>("cartao");
+    const [paymentMethod, setPaymentMethod] = useState<string>("CREDIT_CARD");
     const [customerName, setCustomerName] = useState<string>("");
     // Usamos checkoutStep para controlar a etapa atual: "cart" para o carrinho e "payment" para a etapa de pagamento.
     const [checkoutStep, setCheckoutStep] = useState<"cart" | "payment">("cart");
@@ -72,7 +73,7 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
 
     // Verifica se o botão de pagamento deve estar desabilitado (exemplo para Pix com nome curto)
     const isPaymentButtonDisabled = (): boolean => {
-        if (paymentMethod === "pix" && customerName.trim().length < 3) {
+        if (customerName.trim().length < 3) {
             return true;
         }
         if (cartItems.length === 0) {
@@ -82,12 +83,15 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
     };
 
     // Em vez de redirecionar para outra página, avançamos para a etapa de pagamento.
-    const handlePayment = () => {
+    const handlePayment = async () => {
         if (!transaction?.id) {
             alert("Carrinho vazio, por favor adicione itens antes de prosseguir.");
             return;
         }
+        setLoading(true);
+        await updateTransaction({ paymentMethod: paymentMethod, customerName: customerName }, transaction.id);
         setCheckoutStep("payment");
+        setLoading(false);
     };
 
   return (
@@ -170,11 +174,10 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                             onChange={(e) => setPaymentMethod(e.target.value)}
                             className="w-full p-2 border rounded-md shadow-sm"
                         >
-                            <option value="cartao">Cartão</option>
-                            <option value="pix">Pix</option>
+                            <option value="CREDIT_CARD">Cartão</option>
+                            <option value="PIX">Pix</option>
                         </select>
                         </div>
-                        {paymentMethod === "pix" && (
                         <div className="mb-4">
                             <label className="block text-lg font-medium mb-2">
                             Nome do Cliente
@@ -187,18 +190,16 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                             placeholder="Digite o nome do cliente"
                             />
                         </div>
-                        )}
                         <button
-                        onClick={handlePayment}
-                        disabled={isPaymentButtonDisabled()}
-                        className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handlePayment}
+                            disabled={isPaymentButtonDisabled()}
+                            className="px-4 py-2 bg-red-700 rounded text-white w-full hover:bg-red-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                         PAGAMENTO
                         </button>
                     </div>
                     </>
                 ) : (
-                    // Renderiza o componente CheckoutStep que, com base no paymentMethod, exibirá o formulário de pagamento adequado.
                     <CheckoutStep
                         paymentMethod={paymentMethod}
                         setCheckoutStep={setCheckoutStep}

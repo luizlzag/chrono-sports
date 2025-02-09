@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiLink = "https://new-muay-thai-sales-api.vercel.app";
+const apiLink = "http://localhost:3000";
 
 export const login = async (email, password) => {
     try {
@@ -167,6 +167,21 @@ export const getTransaction = async (transactionId) => {
     try {
         const token = localStorage.getItem('token');
         const res = await axios.get(apiLink+'/transaction/'+transactionId, {
+            headers: {
+                Authorization: `${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        return res.data;
+    } catch (err) {
+        return err.response.data;
+    }
+}
+
+export const getTransactions = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(apiLink+'/transaction', {
             headers: {
                 Authorization: `${token}`,
                 'Content-Type': 'application/json'
