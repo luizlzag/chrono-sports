@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { IoMdAddCircle } from "react-icons/io";
 import { getProducts } from "@/api/axios/api";

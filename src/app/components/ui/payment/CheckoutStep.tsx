@@ -26,7 +26,7 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
 
   return (
     <div className="space-y-4">
-      {paymentMethod === "cartao" && (
+      {paymentMethod === "CREDIT_CARD" && (
         <CardPayment
           transaction={transaction}
           router={router}

@@ -74,106 +74,96 @@ export const getSales = async () => {
 }
 
 export const createPayment = async (paymentType, transaction) => {
-    try {
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
 
-        if (!transaction || !user || !token) {
-            return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente' };
-        }
-
-        let productsData = transaction.cart.map(item => {
-            return {
-                productId: item.id,
-                quantity: item.quantity
-            }
-        });
-
-        let data = JSON.stringify({
-            userId: user.id,
-            gymId: user.gymId,
-            transactionId: transaction.id,
-            paymentType: paymentType,
-            productsData: productsData
-        });
-
-        let headers = {
-            headers: {
-                Authorization: `${token}`,
-                'Content-Type': 'application/json'
-            }
-        };
-
-        const res = await axios.post(apiLink+'/payment', data, headers);
-        return res.data;
-    } catch (err) {
-        console.log(err)
-        return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente mais tarde' };
+    if (!transaction || !user || !token) {
+        return { error: 'Ocorreu um erro ao realizar o pagamento. Tente novamente' };
     }
+
+    let productsData = transaction.cart.map(item => {
+        return {
+            productId: item.id,
+            quantity: item.quantity
+        }
+    });
+
+    let data = JSON.stringify({
+        userId: user.id,
+        gymId: user.gymId,
+        transactionId: transaction.id,
+        paymentType: paymentType,
+        productsData: productsData
+    });
+
+    let headers = {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const res = await axios.post(apiLink+'/payment', data, headers);
+    return res.data;
 }
 
 export const getRecentTransaction = async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(apiLink+'/transaction/active', {
-            headers: {
-                Authorization: `${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        return res.data;
-    } catch (err) {
-        return err.response.data;
-    }
+    const token = localStorage.getItem('token');
+    const res = await axios.get(apiLink+'/transaction/active', {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    return res.data;
 }
 
 export const createTransaction = async (transactionData) => {
-    try {
-        const token = localStorage.getItem('token');
-        const data = JSON.stringify(transactionData);
-        let headers = {
-            headers: {
-                Authorization: `${token}`,
-                'Content-Type': 'application/json'
-            }
-        };
+    const token = localStorage.getItem('token');
+    const data = JSON.stringify(transactionData);
+    let headers = {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    };
 
-        const res = await axios.post(apiLink+'/transaction', data, headers);
-        return res.data;
-    } catch (err) {
-        return err.response.data;
-    }
+    const res = await axios.post(apiLink+'/transaction', data, headers);
+    return res.data;
 }
 
 export const updateTransaction = async (transactionData, transactionId) => {
-    try {
-        const token = localStorage.getItem('token');
-        const data = JSON.stringify(transactionData);
-        let headers = {
-            headers: {
-                Authorization: `${token}`,
-                'Content-Type': 'application/json'
-            }
-        };
+    const token = localStorage.getItem('token');
+    const data = JSON.stringify(transactionData);
+    let headers = {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    };
 
-        const res = await axios.put(apiLink+'/transaction/'+transactionId, data, headers);
-        return res.data;
-    } catch (err) {
-        return err.response.data;
-    }
+    const res = await axios.put(apiLink+'/transaction/'+transactionId, data, headers);
+    return res.data;
 }
 
 export const getTransaction = async (transactionId) => {
-    try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(apiLink+'/transaction/'+transactionId, {
-            headers: {
-                Authorization: `${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        return res.data;
-    } catch (err) {
-        return err.response.data;
-    }
+    const token = localStorage.getItem('token');
+    const res = await axios.get(apiLink+'/transaction/'+transactionId, {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    return res.data;
+}
+
+export const getTransactions = async () => {
+    const token = localStorage.getItem('token');
+    const res = await axios.get(apiLink+'/transaction', {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    return res.data;
 }
