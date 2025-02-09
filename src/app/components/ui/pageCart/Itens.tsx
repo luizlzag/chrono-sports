@@ -47,7 +47,7 @@ export const Itens: React.FC<{
     
     return (
         <div className="md:grid md:grid-cols-4 gap-4">
-            {filteredItems.length > 0 ? filteredItems.map((i) =>
+            {filteredItems.length ?? 0 > 0 ? filteredItems.map((i) =>
                 <div className="flex" key={i.id}>
                     <div className="w-full rounded shadow py-3 px-3 mb-3 bg-white grid grid-cols-2">
                         <Image
