@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Passion_One } from "next/font/google";
 import { TransactionProvider } from "@/context/TransactionContext";
 import { PaymentProvider } from "@/context/PaymentContext";
+import { Toaster } from "react-hot-toast";
 
 import "./globals.css";
 
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <PaymentProvider>
           <TransactionProvider>
+            <Toaster />
             {children}
           </TransactionProvider>
         </PaymentProvider>

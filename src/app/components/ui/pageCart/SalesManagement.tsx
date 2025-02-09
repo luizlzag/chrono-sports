@@ -43,16 +43,16 @@ const CartContainer: React.FC = () => {
             return;
         }
 
-        let cart: Item[] = transaction.cart;
+        const newCart = transaction.cart ? [...transaction.cart] : [];
 
-        const existingItem = cart.find(cartItem => cartItem.id === item.id);
+        const existingItem = newCart.find(cartItem => cartItem.id === item.id);
         if (existingItem) {
             existingItem.quantity = (existingItem.quantity ?? 1) + 1;
         } else {
-            cart.push(item);
+            newCart.push({ ...item, quantity: 1 });
         }
 
-        updateTransaction({ cart }, transaction.id);
+        updateTransaction({ cart: newCart }, transaction.id);
         setOpenCart(true);
         setLoading(false);
     };

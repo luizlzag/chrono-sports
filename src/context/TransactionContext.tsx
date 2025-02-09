@@ -3,6 +3,7 @@
 import { createContext, useState, useContext, useCallback } from "react";
 import { getRecentTransaction, createTransaction, updateTransaction, getTransaction, getTransactions } from "@/api/axios/api";
 import { Item } from "@/app/types/cartTypes";
+import { handleTransactionError } from "./errorHandler";
 
 interface TransactionRequest {
     cart?: Item[];
@@ -49,7 +50,7 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
             const data = await getRecentTransaction();
             setTransaction(data);
         } catch (error) {
-            console.error("Erro ao obter transação:", error);
+            handleTransactionError();
         }
     };
 
@@ -58,17 +59,16 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
             const response = await createTransaction(transactionData);
             setTransaction(response);
         } catch (error) {
-            console.error("Erro ao criar transação:", error);
+            handleTransactionError();
         }
     };
 
     const handleUpdateTransaction = async (transactionData: TransactionRequest, transactionId: number) => {
         try {
             const response = await updateTransaction(transactionData, transactionId);
-            if (!response) setTransaction(null);
             setTransaction(response);
         } catch (error) {
-            console.error("Erro ao atualizar transação:", error);
+            handleTransactionError();
         }
     };
 
@@ -77,7 +77,7 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
             const response = await getTransaction(transactionId);
             setTransaction(response);
         } catch (error) {
-            console.error("Erro ao obter transação:", error);
+            handleTransactionError();
         }
     }
 
@@ -86,7 +86,7 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
             const data = await getTransactions();
             setTransactions(data);
         } catch (error) {
-            console.error("Erro ao obter transações:", error);
+            handleTransactionError();
         }
     }, []);
 

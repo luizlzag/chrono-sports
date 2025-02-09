@@ -1,5 +1,5 @@
 // components/ItensCart.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IoMdAdd, IoMdRemove, IoMdTrash } from "react-icons/io";
 import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
@@ -14,27 +14,20 @@ interface ItensCartProps {
 }
 
 export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) => {
-    const [cartItems, setCartItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<string>("CREDIT_CARD");
     const [customerName, setCustomerName] = useState<string>("");
-    // Usamos checkoutStep para controlar a etapa atual: "cart" para o carrinho e "payment" para a etapa de pagamento.
     const [checkoutStep, setCheckoutStep] = useState<"cart" | "payment">("cart");
 
     const router = useRouter();
 
     const { transaction, updateTransaction, fetchTransaction } = useTransaction();
 
-    useEffect(() => {
-        if (transaction) {
-            setCartItems(transaction.cart);
-        } else {
-            setCartItems([]);
-        }
-    }, [transaction]);
-
     const calculateTotal = (): number => {
-        return cartItems.reduce((total, item) => total + item.price * (item.quantity ?? 1), 0);
+        if (!transaction) {
+            return 0;
+        }
+        return transaction.cart.reduce((total, item) => total + item.price * (item.quantity ?? 1), 0);
     };
 
     const updateCart = async (updatedItems: Item[]) => {
@@ -49,25 +42,27 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
     };
 
     const incrementQuantity = (itemId: string) => {
-        const updatedItems = cartItems.map((item) =>
-        item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item);
-        setCartItems(updatedItems);
+        const updatedItems = transaction?.cart.map(
+            (item) => item.id === itemId ? { ...item, quantity: (item.quantity ?? 1) + 1 } : item
+        ) ?? [];
         updateCart(updatedItems);
     };
 
     const decrementQuantity = (itemId: string) => {
-        const updatedItems = cartItems.map((item) =>
+        const updatedItems = transaction?.cart.map((item) =>
         item.id === itemId
             ? { ...item, quantity: Math.max((item.quantity ?? 1) - 1, 1) }
             : item
-        );
-        setCartItems(updatedItems);
+        ) ?? [];
         updateCart(updatedItems);
     };
 
     const removeItem = (itemId: string) => {
-        const updatedItems = cartItems.filter((item) => item.id !== itemId);
-        setCartItems(updatedItems);
+        if (!transaction) {
+            alert("Erro ao remover item: transação não encontrada.");
+            return;
+        }
+        const updatedItems = transaction.cart.filter((item) => item.id !== itemId);
         updateCart(updatedItems);
     };
 
@@ -76,7 +71,7 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
         if (customerName.trim().length < 3) {
             return true;
         }
-        if (cartItems.length === 0) {
+        if (transaction?.cart.length === 0) {
             return true;
         }
         return false;
@@ -118,8 +113,8 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                 {checkoutStep === "cart" ? (
                     <>
                     <div className="grid grid-cols-1 gap-4">
-                        {cartItems.length > 0 ? (
-                        cartItems.map((item) => (
+                        {transaction?.cart?.length ?? 0 > 0 ? (
+                        transaction?.cart.map((item) => (
                             <div
                             key={item.id}
                             className="flex items-center justify-between"
