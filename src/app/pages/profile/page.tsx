@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ProfilePage from '../../components/ui/profilePage/NewProfilePage';
+import { ProfilePage } from '@/app/components/ui/profilePage/NewProfilePage';
 
 function Profile() {
     return ( 
