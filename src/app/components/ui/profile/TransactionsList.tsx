@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { TransactionResponse, useTransaction } from "@/context/TransactionContext";
 import { PaymentStatus, PaymentMethod } from "@/app/types/cartTypes";
 import { format, parseISO } from 'date-fns';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Componente para exibir o status de pagamento
 const StatusBadge = ({ status }: { status: string }) => {
