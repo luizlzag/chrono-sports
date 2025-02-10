@@ -51,7 +51,7 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
     const decrementQuantity = (itemId: string) => {
         const updatedItems = transaction?.cart.map((item) =>
         item.id === itemId
-            ? { ...item, quantity: Math.max((item.quantity ?? 1) - 1, 1) }
+            ? { ...item, quantity: Math.max((item.quantity ?? 1) - 1, 0) }
             : item
         ) ?? [];
         updateCart(updatedItems);

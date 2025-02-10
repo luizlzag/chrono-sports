@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { TransactionResponse, useTransaction } from "@/context/TransactionContext";
 import { PaymentStatus, PaymentMethod } from "@/app/types/cartTypes";
 import { format, parseISO } from 'date-fns';
+import { motion } from "framer-motion";
 
 // Componente para exibir o status de pagamento
 const StatusBadge = ({ status }: { status: string }) => {
@@ -24,31 +25,74 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 // Componente para cada item da transação
-const TransactionItem = ({
-  transaction,
-}: {
-  transaction: TransactionResponse
-}) => {
+const TransactionItem = ({ transaction }: { transaction: TransactionResponse }) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const formattedDate = format(parseISO(transaction.createdAt), "dd/MM/yyyy");
+  const subtotal = transaction.cart.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
+  const discount = 0;
+  const total = subtotal - discount;
 
   const paymentMethod = transaction.paymentMethod ? PaymentMethod[transaction.paymentMethod] || transaction.paymentMethod : "Desconhecido";
 
-  const formatedDate = format(parseISO(transaction.createdAt), 'dd/MM/yyyy');
-
   return (
-    <tr 
-      className="hover:bg-gray-50 transition-colors cursor-pointer"
-      onClick={() => setIsOpen(!isOpen)}
-    >
-      <td className="p-4 text-sm text-gray-700">#{transaction.id}</td>
-      <td className="p-4 text-sm text-gray-700">{transaction.customerName}</td>
-      <td className="p-4 text-sm text-gray-700">{formatedDate}</td>
-      <td className="p-4 text-sm font-medium text-gray-900">{transaction.totalAmount}</td>
-      <td className="p-4 text-sm text-gray-700">{paymentMethod}</td>
-      <td className="p-4">
-        <StatusBadge status={transaction.status} />
-      </td>
-    </tr>
+    <>
+      <tr 
+        className="hover:bg-gray-50 transition-colors cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <td className="p-4 text-sm text-gray-700">#{transaction.id}</td>
+        <td className="p-4 text-sm text-gray-700">{transaction.customerName}</td>
+        <td className="p-4 text-sm text-gray-700">{formattedDate}</td>
+        <td className="p-4 text-sm font-medium text-gray-900">R${transaction.totalAmount}</td>
+        <td className="p-4 text-sm text-gray-700">{paymentMethod}</td>
+        <td className="p-4">
+          <StatusBadge status={transaction.status} />
+        </td>
+      </tr>
+      {isOpen && (
+        <tr>
+          <td colSpan={6} className="p-4 bg-gray-100">
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }} 
+              animate={{ height: "auto", opacity: 1 }} 
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              <div className="border rounded-lg p-4">
+                <h3 className="text-lg font-bold mb-2">Detalhes da Compra</h3>
+                <table className="w-full text-center">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      {["ID", "PRODUTO", "VALOR", "QTD", "TOTAL"].map(header => (
+                        <th key={header} className="p-3 text-sm font-medium text-gray-700">{header}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transaction.cart.map(item => (
+                      <tr key={item.id} className="border-t">
+                        <td className="p-3">#{item.id}</td>
+                        <td className="p-3">{item.name}</td>
+                        <td className="p-3">R${item.price.toFixed(2)}</td>
+                        <td className="p-3">x{item.quantity || 1}</td>
+                        <td className="p-3">R${(item.price * (item.quantity || 1)).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="mt-4 text-right">
+                  <p>Subtotal: <span className="font-semibold">R${subtotal.toFixed(2)}</span></p>
+                  <p className="text-red-600">Desconto: <span className="font-semibold">R${discount.toFixed(2)}</span></p>
+                  <p className="text-lg font-bold">Total: <span>R${total.toFixed(2)}</span></p>
+                </div>
+              </div>
+            </motion.div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 };
 
