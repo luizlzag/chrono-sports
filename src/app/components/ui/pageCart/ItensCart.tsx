@@ -68,10 +68,13 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
 
     // Verifica se o botão de pagamento deve estar desabilitado (exemplo para Pix com nome curto)
     const isPaymentButtonDisabled = (): boolean => {
-        if (customerName.trim().length ?? 0 < 3) {
+        if (!transaction) {
             return true;
         }
-        if (transaction?.cart.length ?? 0 === 0) {
+        if (customerName.trim().length < 3) {
+            return true;
+        }
+        if (transaction?.cart.length === 0) {
             return true;
         }
         return false;
