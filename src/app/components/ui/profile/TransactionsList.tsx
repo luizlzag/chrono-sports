@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { TransactionResponse, useTransaction } from "@/context/TransactionContext";
 import { PaymentStatus, PaymentMethod } from "@/app/types/cartTypes";
+import { format, parseISO } from 'date-fns';
 
 // Componente para exibir o status de pagamento
 const StatusBadge = ({ status }: { status: string }) => {
@@ -32,6 +33,8 @@ const TransactionItem = ({
 
   const paymentMethod = transaction.paymentMethod ? PaymentMethod[transaction.paymentMethod] || transaction.paymentMethod : "Desconhecido";
 
+  const formatedDate = format(parseISO(transaction.createdAt), 'dd/MM/yyyy');
+
   return (
     <tr 
       className="hover:bg-gray-50 transition-colors cursor-pointer"
@@ -39,7 +42,7 @@ const TransactionItem = ({
     >
       <td className="p-4 text-sm text-gray-700">#{transaction.id}</td>
       <td className="p-4 text-sm text-gray-700">{transaction.customerName}</td>
-      <td className="p-4 text-sm text-gray-700">{transaction.createdAt}</td>
+      <td className="p-4 text-sm text-gray-700">{formatedDate}</td>
       <td className="p-4 text-sm font-medium text-gray-900">{transaction.totalAmount}</td>
       <td className="p-4 text-sm text-gray-700">{paymentMethod}</td>
       <td className="p-4">
@@ -70,7 +73,7 @@ const TransactionList = () => {
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = searchField === "client" 
       ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-      : transaction.createdAt.includes(searchQuery);
+      : format(parseISO(transaction.createdAt), 'dd/MM/yyyy').includes(searchQuery);
     
     const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
     const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
