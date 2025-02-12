@@ -97,8 +97,9 @@ const TransactionItem = ({ transaction }: { transaction: TransactionResponse }) 
 };
 
 const TransactionList = () => {
+  const itemsPerPage = 5;
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchField, setSearchField] = useState<"client" | "date">("client");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
@@ -125,12 +126,6 @@ const TransactionList = () => {
     return matchesSearch && matchesStatus && matchesPayment;
   });
 
-  // Resetamos a página quando o usuário muda a quantidade de itens
-  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1);
-  };
-
   const totalItems = filteredTransactions.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -148,11 +143,11 @@ const TransactionList = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Gestão de Pedidos</h2>
-
+        
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex flex-1 max-w-xl">
             <div className="relative flex items-stretch flex-grow">
-              <select 
+              <select
                 value={searchField}
                 onChange={(e) => setSearchField(e.target.value as "client" | "date")}
                 className="border rounded-l-lg px-3 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -169,7 +164,6 @@ const TransactionList = () => {
               />
             </div>
           </div>
-
           <div className="flex gap-2">
             <select
               value={statusFilter}
@@ -194,71 +188,45 @@ const TransactionList = () => {
           </div>
         </div>
 
-        {/* Tabela de transações */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                {["PEDIDO", "CLIENTE", "DATA", "TOTAL", "PAGAMENTO", "STATUS"].map((header) => (
-                  <th key={header} className="p-3 text-sm font-medium text-gray-600 text-left">
-                    {header}
-                  </th>
+          <div className="hidden sm:block">
+            <table className="w-full">
+              <thead className="bg-gray-100">
+                <tr>
+                  {["PEDIDO", "CLIENTE", "DATA", "TOTAL", "PAGAMENTO", "STATUS"].map((header) => (
+                    <th key={header} className="p-3 text-sm font-medium text-gray-600 text-left">{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentTransactions.map((transaction) => (
+                  <TransactionItem key={transaction.id} transaction={transaction} />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentTransactions.map((transaction) => (
-                <TransactionItem key={transaction.id} transaction={transaction} />
-              ))}
-            </tbody>
-          </table>
-
-          {/* Rodapé com paginação */}
-          <div className="flex justify-between items-center p-4 border-t">
-            <span className="text-sm text-gray-600">
-              Mostrando {startIndex + 1}-{endIndex} de {totalItems}
-            </span>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Itens por página:</span>
-              <select
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-                className="px-3 py-1 border rounded-lg"
-              >
-                <option value="2">2</option>
-                <option value="5">5</option>
-                {/* <option value="10">10</option> */}
-              </select>
-            </div>
+              </tbody>
+            </table>
           </div>
-
-          {/* Paginação */}
-          <div className="flex justify-center p-4 border-t">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 mx-1 border rounded bg-red-600 ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              &lt;
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 mx-1 border rounded ${currentPage === page ? "bg-red-600 text-white" : "bg-white"}`}
-              >
-                {page}
-              </button>
+          
+          <div className="sm:hidden flex flex-col gap-4 p-4">
+            {currentTransactions.map((transaction) => (
+              <div key={transaction.id} className="p-4 border rounded-lg shadow-sm bg-gray-50">
+                <p className="text-lg font-semibold">Pedido #{transaction.id}</p>
+                <p className="text-sm text-gray-700">{transaction.customerName} - {format(parseISO(transaction.createdAt), "dd/MM/yyyy")}</p>
+                <p className="text-sm text-gray-700">Total: R$ {transaction.totalAmount}</p>
+                <p className="text-sm text-gray-700">Pagamento: {transaction.paymentMethod}</p>
+                <p className="text-sm text-gray-700">Status: {transaction.status}</p>
+              </div>
             ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 mx-1 border rounded bg-red-600 ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              &gt;
-            </button>
+          </div>
+          
+          <div className="flex justify-between items-center p-4 border-t">
+            <span className="text-sm text-gray-600">Mostrando {startIndex + 1}-{endIndex} de {totalItems}</span>
+            <div className="flex justify-center p-4 border-t">
+              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50">&lt;</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button key={page} onClick={() => handlePageChange(page)} className={`px-3 py-1 mx-1 border rounded ${currentPage === page ? "bg-red-600 text-white" : "bg-white"}`}>{page}</button>
+              ))}
+              <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50">&gt;</button>
+            </div>
           </div>
         </div>
       </div>
