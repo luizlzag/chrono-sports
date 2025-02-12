@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { ShoppingCart, Package, Menu, X } from "lucide-react";
 import TransactionList from "./TransactionsList";
+import StockPage from "./StockList";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage: string; setActivePage: (page: string) => void; isOpen: boolean; toggleMenu: () => void }) => {
   return (
@@ -44,7 +46,7 @@ const Content = ({ activePage }: { activePage: string }) => {
   return (
     <div className="w-full p-4 md:p-6" style={{ backgroundColor: "#fafafa" }}>
       {activePage === "transactions" && <TransactionList />}
-      {activePage === "stock" && <p>Estoque em breve...</p>}
+      {activePage === "stock" && <StockPage />}
     </div>
   );
 };
@@ -52,19 +54,23 @@ const Content = ({ activePage }: { activePage: string }) => {
 const NewProfilePage = () => {
   const [activePage, setActivePage] = useState("transactions");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [queryClient] = useState(() => new QueryClient());
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <div className="flex min-h-screen h-screen">
-      <button className="md:hidden fixed top-4 left-4 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>
-        <Menu size={24} />
-      </button>
-      <Sidebar activePage={activePage} setActivePage={setActivePage} isOpen={isMenuOpen} toggleMenu={toggleMenu} />
-      <div className="flex-1 md:pl-64">
-        <Content activePage={activePage} />
+    <QueryClientProvider client={queryClient}>
+      <div className="flex min-h-screen h-screen">
+        <button className="md:hidden fixed top-4 left-4 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>
+          <Menu size={24} />
+        </button>
+        <Sidebar activePage={activePage} setActivePage={setActivePage} isOpen={isMenuOpen} toggleMenu={toggleMenu} />
+        <div className="flex-1 md:pl-64">
+          <Content activePage={activePage} />
+        </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 };
 
