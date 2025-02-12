@@ -6,7 +6,7 @@ import TransactionList from "./TransactionsList";
 const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage: string; setActivePage: (page: string) => void; isOpen: boolean; toggleMenu: () => void }) => {
   return (
     <aside
-      className={`fixed top-0 left-0 h-full w-64 bg-gray-100 p-4 shadow-lg transform transition-transform md:relative md:translate-x-0 z-50 ${
+      className={`fixed top-0 left-0 h-screen overflow-y-auto w-64 bg-gray-100 p-4 shadow-lg transform transition-transform md:translate-x-0 z-50 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } md:w-64 md:block`}
     >
@@ -56,12 +56,12 @@ const NewProfilePage = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen h-screen">
       <button className="md:hidden fixed top-4 left-4 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>
         <Menu size={24} />
       </button>
       <Sidebar activePage={activePage} setActivePage={setActivePage} isOpen={isMenuOpen} toggleMenu={toggleMenu} />
-      <div className="flex-1">
+      <div className="flex-1 md:pl-64">
         <Content activePage={activePage} />
       </div>
     </div>
