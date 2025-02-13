@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { ShoppingCart, Package, Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart, Package, Menu, X, ArrowLeft } from "lucide-react";
 import TransactionList from "./TransactionsList";
 import StockPage from "./StockList";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -54,21 +55,33 @@ const Content = ({ activePage }: { activePage: string }) => {
 const NewProfilePage = () => {
   const [activePage, setActivePage] = useState("transactions");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [queryClient] = useState(() => new QueryClient());
-  
+  const router = useRouter();
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const handleBack = () => router.push("/pages/home");
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen h-screen">
-        <button className="md:hidden fixed top-4 left-4 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>
+      <div className="flex min-h-screen h-screen relative">
+        {/* Botão de abrir menu no mobile */}
+        <button className="md:hidden fixed top-2 left-2 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>
           <Menu size={24} />
         </button>
+
         <Sidebar activePage={activePage} setActivePage={setActivePage} isOpen={isMenuOpen} toggleMenu={toggleMenu} />
+        
         <div className="flex-1 md:pl-64">
           <Content activePage={activePage} />
         </div>
+
+        <button
+          onClick={handleBack}
+          className="fixed bottom-6 left-6 bg-red-600 text-white p-4 rounded-full shadow-lg hover:bg-red-700 transition duration-300 flex items-center justify-center z-50"
+          aria-label="Voltar para Home"
+        >
+          <ArrowLeft size={24} />
+        </button>
       </div>
     </QueryClientProvider>
   );
