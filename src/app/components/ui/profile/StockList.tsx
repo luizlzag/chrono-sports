@@ -40,21 +40,23 @@ const StockPage = () => {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-6 bg-gray-50 w-full">
-      <div className="w-full max-w-4xl p-6 border rounded-xl shadow-md bg-white flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Estoque</h2>
+    <div className="min-h-screen flex flex-col items-center p-4 bg-white w-full">
+      <div className="w-full max-w-6xl p-4 border border-gray-300 rounded-xl shadow-lg bg-white flex flex-col items-center">
+        <h2 className="text-3xl font-bold text-black mb-4 uppercase tracking-wide">
+          Estoque
+        </h2>
 
-        {/* Campo de pesquisa com animação */}
+        {/* Campo de pesquisa estilizado */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="relative w-full max-w-md mb-4"
+          className="relative w-full max-w-xl mb-4"
         >
           <input
             type="text"
             placeholder="Buscar produto..."
-            className="w-full p-3 border border-gray-300 rounded-lg pl-10 outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full p-3 border border-gray-400 rounded-lg pl-10 outline-none focus:ring-2 focus:ring-red-500 transition"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -67,13 +69,15 @@ const StockPage = () => {
           <p className="text-red-500">Erro ao carregar o estoque.</p>
         ) : filteredStock.length > 0 ? (
           <div className="w-full">
-            {/* Tabela para desktop */}
-            <div className="hidden md:block">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b">
+            {/* Tabela para desktop com largura expandida */}
+            <div className="hidden md:block w-full">
+              <table className="w-full text-left rounded-lg overflow-hidden border border-gray-300">
+                <thead className="bg-black text-white">
+                  <tr>
                     {["Produto", "Quantidade"].map((header) => (
-                      <th key={header} className="py-2 text-gray-600 font-medium">{header}</th>
+                      <th key={header} className="py-3 px-6 font-medium">
+                        {header}
+                      </th>
                     ))}
                   </tr>
                 </thead>
@@ -86,10 +90,10 @@ const StockPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="border-b hover:bg-gray-100 transition"
+                        className="border-b border-gray-300 transition"
                       >
-                        <td className="py-3">{item.name}</td>
-                        <td className="py-3 text-center font-medium">{item.quantity}</td>
+                        <td className="py-4 px-6 text-black font-medium">{item.name}</td>
+                        <td className="py-4 px-6 font-bold">{item.quantity}</td>
                       </motion.tr>
                     ))}
                   </AnimatePresence>
@@ -97,8 +101,8 @@ const StockPage = () => {
               </table>
             </div>
 
-            {/* Layout Mobile */}
-            <div className="md:hidden flex flex-col gap-3 w-full">
+            {/* Layout Mobile otimizado */}
+            <div className="md:hidden flex flex-col gap-2 w-full">
               <AnimatePresence>
                 {filteredStock.map((item) => (
                   <motion.div
@@ -107,10 +111,12 @@ const StockPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.3 }}
-                    className="p-4 border border-gray-200 rounded-lg bg-gray-50 text-center"
+                    className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-center shadow-md"
                   >
-                    <p className="font-medium text-gray-800">{item.name}</p>
-                    <p className="text-gray-600">Quantidade: <span className="font-semibold">{item.quantity}</span></p>
+                    <p className="font-semibold text-black">{item.name}</p>
+                    <p className="font-bold">
+                      Quantidade: {item.quantity}
+                    </p>
                   </motion.div>
                 ))}
               </AnimatePresence>

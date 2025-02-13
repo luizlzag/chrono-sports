@@ -15,8 +15,8 @@ const config: Config = {
       },
       keyframes: {
         'pulse-red': {
-          '0%, 100%': { backgroundColor: 'rgb(220, 38, 38)' }, // tom de vermelho inicial
-          '50%': { backgroundColor: 'rgb(255, 99, 71)' }, // tom de vermelho mais claro
+          '0%, 100%': { backgroundColor: 'rgb(220, 38, 38)' },
+          '50%': { backgroundColor: 'rgb(255, 99, 71)' },
         },
       },
       animation: {
