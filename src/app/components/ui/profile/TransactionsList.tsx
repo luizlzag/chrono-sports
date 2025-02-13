@@ -142,16 +142,18 @@ const TransactionList = () => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, paymentFilter]);
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = searchField === "client" 
-      ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-      : format(parseISO(transaction.createdAt), 'dd/MM/yyyy').includes(searchQuery);
-    
-    const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
-    const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
-    
-    return matchesSearch && matchesStatus && matchesPayment;
-  });
+  const filteredTransactions = transactions
+    .filter(transaction => {
+      const matchesSearch = searchField === "client" 
+        ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
+        : format(parseISO(transaction.createdAt), 'dd/MM/yyyy').includes(searchQuery);
+      
+      const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
+      const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
+      
+      return matchesSearch && matchesStatus && matchesPayment;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const totalItems = filteredTransactions.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
