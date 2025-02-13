@@ -13,6 +13,7 @@ const inter = Passion_One(
 export const metadata: Metadata = {
   title: "Chrono Sports",
   description: "Pagina venda Chrono Sports",
+  icons: '/logo.png'
 };
 
 export default function RootLayout({
