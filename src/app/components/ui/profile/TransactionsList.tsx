@@ -112,6 +112,18 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                         <td className="p-3">R${(item.price * (item.quantity || 1)).toFixed(2)}</td>
                       </tr>
                     ))}
+                    <tr className="border-t">
+                      <td colSpan={4} className="p-3 text-right">Subtotal</td>
+                      <td className="p-3 font-semibold">R${subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={4} className="p-3 text-right text-red-600">Desconto</td>
+                      <td className="p-3 font-semibold">R${discount.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={4} className="p-3 text-right">Total</td>
+                      <td className="p-3 font-bold">R${total.toFixed(2)}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
