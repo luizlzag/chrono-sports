@@ -112,6 +112,18 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                         <td className="p-3">R${(item.price * (item.quantity || 1)).toFixed(2)}</td>
                       </tr>
                     ))}
+                    <tr className="border-t">
+                      <td colSpan={4} className="p-3 text-right">Subtotal</td>
+                      <td className="p-3 font-semibold">R${subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={4} className="p-3 text-right text-red-600">Desconto</td>
+                      <td className="p-3 font-semibold">R${discount.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={4} className="p-3 text-right">Total</td>
+                      <td className="p-3 font-bold">R${total.toFixed(2)}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -142,16 +154,18 @@ const TransactionList = () => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, paymentFilter]);
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = searchField === "client" 
-      ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-      : format(parseISO(transaction.createdAt), 'dd/MM/yyyy').includes(searchQuery);
-    
-    const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
-    const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
-    
-    return matchesSearch && matchesStatus && matchesPayment;
-  });
+  const filteredTransactions = transactions
+    .filter(transaction => {
+      const matchesSearch = searchField === "client" 
+        ? transaction.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
+        : format(parseISO(transaction.createdAt), 'dd/MM/yyyy').includes(searchQuery);
+      
+      const matchesStatus = statusFilter === "Todos" || transaction.status === statusFilter;
+      const matchesPayment = paymentFilter === "Todos" || transaction.paymentMethod === paymentFilter;
+      
+      return matchesSearch && matchesStatus && matchesPayment;
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const totalItems = filteredTransactions.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
