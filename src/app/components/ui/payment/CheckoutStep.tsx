@@ -18,10 +18,7 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
   router,
   setCheckoutStep
 }) => {
-  const { createTransaction } = useTransaction();
-
   const handleBack = async () => {
-    await createTransaction({ cart: [] });
     setCheckoutStep("cart");
   };
 
