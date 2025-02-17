@@ -82,7 +82,7 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                 <p className="text-red-600">Desconto: <span className="font-semibold">R${discount.toFixed(2)}</span></p>
                 <p className="text-lg font-bold">Total: <span>R${total.toFixed(2)}</span></p>
               </div>
-              {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+              {transaction.status !== "canceled" && transaction.paymentMethod === "PIX" && (
                 <div className="mt-4 text-center">
                   <button 
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
@@ -160,7 +160,7 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                     </tr>
                   </tbody>
                 </table>
-                {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+                {transaction.status !== "canceled" && transaction.paymentMethod === "PIX" && (
                   <div className="mt-4 text-center">
                     <button 
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
