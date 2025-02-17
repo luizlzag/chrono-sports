@@ -18,10 +18,11 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
   router,
   setCheckoutStep
 }) => {
-  const { deleteTransaction } = useTransaction();
+  const { fetchTransaction, createTransaction } = useTransaction();
 
   const handleBack = async () => {
-    deleteTransaction(transaction?.id as number);
+    await createTransaction({ cart: [] });
+    await fetchTransaction();
     setCheckoutStep("cart");
   };
 
