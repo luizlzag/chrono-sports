@@ -9,6 +9,7 @@ interface TransactionRequest {
     cart?: Item[];
     paymentMethod?: string | null;
     customerName?: string | null;
+    status?: string | null;
 }
 
 export interface TransactionResponse {

@@ -18,5 +18,6 @@ export const PaymentMethod: PaymentTypes = {
 export const PaymentStatus: PaymentTypes = {
     paid: "Pago",
     waiting_payment: "Processando",
-    pending: "Processando"
+    pending: "Processando",
+    canceled: "Cancelado"
 };
