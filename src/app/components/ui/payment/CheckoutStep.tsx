@@ -3,13 +3,14 @@ import React from "react";
 import CardPayment from "./CardPayment";
 import { TransactionResponse } from "@/context/TransactionContext";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import PixPayment from "./PixPayment";
 
 interface CheckoutStepProps {
   paymentMethod: string;
   transaction: TransactionResponse | null;
   router: AppRouterInstance;
   setCheckoutStep: (step: "cart" | "payment") => void;
-  fetchTransaction: () => void;
+  deleteTransaction: (id: number) => void;
 }
 
 const CheckoutStep: React.FC<CheckoutStepProps> = ({
@@ -17,10 +18,12 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
   transaction,
   router,
   setCheckoutStep,
-  fetchTransaction
+  deleteTransaction
 }) => {
   const handleBack = async () => {
-    await fetchTransaction();
+    if (transaction?.id) {
+      await deleteTransaction(transaction.id);
+    }
     setCheckoutStep("cart");
   };
 
@@ -30,6 +33,12 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
         <CardPayment
           transaction={transaction}
           router={router}
+          onBack={handleBack}
+        />
+      )}
+      {paymentMethod === "PIX" && (
+        <PixPayment
+          transaction={transaction}
           onBack={handleBack}
         />
       )}

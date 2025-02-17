@@ -38,6 +38,7 @@ interface TransactionContextType {
     updateTransaction: (transactionData: TransactionRequest, transactionId: number) => Promise<void>;
     getTransaction: (transactionId: number) => Promise<void>;
     fetchTransactions: () => Promise<void>;
+    deleteTransaction: (transactionId: number) => Promise<void>;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -91,8 +92,18 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
         }
     }, []);
 
+    const handleDeleteTransaction = async (transactionId: number) => {
+        try {
+            await handleDeleteTransaction(transactionId);
+            fetchTransactions();
+        } catch (error) {
+            handleTransactionError();
+        }
+    }
+
     return (
-        <TransactionContext.Provider value={{ transaction, transactions, setTransaction, fetchTransaction, createTransaction: handleCreateTransaction, updateTransaction: handleUpdateTransaction, getTransaction: handleGetTransaction, fetchTransactions }}>
+        <TransactionContext.Provider value={
+            { transaction, transactions, setTransaction, fetchTransaction, createTransaction: handleCreateTransaction, updateTransaction: handleUpdateTransaction, getTransaction: handleGetTransaction, fetchTransactions, deleteTransaction: handleDeleteTransaction}}>
             {children}
         </TransactionContext.Provider>
     );
