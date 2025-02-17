@@ -14,6 +14,7 @@ const CartContainer: React.FC = () => {
     const [isFetched, setIsFetched] = useState(false);
 
     useEffect(() => {
+        console.log("Fetching transaction data...");
         if (!isFetched) {
             const fetchTransactionData = async () => {
                 try {

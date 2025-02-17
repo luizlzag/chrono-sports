@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useCallback } from "react";
-import { getRecentTransaction, createTransaction, updateTransaction, getTransaction, getTransactions } from "@/api/axios/api";
+import { getRecentTransaction, createTransaction, updateTransaction, getTransaction, getTransactions, deleteTransaction } from "@/api/axios/api";
 import { Item } from "@/app/types/cartTypes";
 import { handleTransactionError } from "./errorHandler";
 
@@ -94,8 +94,8 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
 
     const handleDeleteTransaction = async (transactionId: number) => {
         try {
-            await handleDeleteTransaction(transactionId);
-            fetchTransactions();
+            await deleteTransaction(transactionId);
+            fetchTransaction();
         } catch (error) {
             handleTransactionError();
         }

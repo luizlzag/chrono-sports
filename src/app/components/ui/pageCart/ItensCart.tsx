@@ -21,7 +21,7 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
 
     const router = useRouter();
 
-    const { transaction, updateTransaction, fetchTransaction, deleteTransaction } = useTransaction();
+    const { transaction, updateTransaction, deleteTransaction } = useTransaction();
 
     const calculateTotal = (): number => {
         if (!transaction) {
@@ -203,7 +203,6 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
                         setCheckoutStep={setCheckoutStep}
                         router={router}
                         transaction={transaction}
-                        deleteTransaction={deleteTransaction}
                     />
                 )}
                 </div>

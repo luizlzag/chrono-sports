@@ -167,3 +167,14 @@ export const getTransactions = async () => {
     });
     return res.data;
 }
+
+export const deleteTransaction = async (transactionId) => {
+    const token = localStorage.getItem('token');
+    const res = await axios.delete(apiLink+'/transaction/'+transactionId, {
+        headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    return res.data;
+}
