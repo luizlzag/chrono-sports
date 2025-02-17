@@ -4,6 +4,7 @@ import { TransactionResponse, useTransaction } from "@/context/TransactionContex
 import { PaymentStatus, PaymentMethod } from "@/app/types/cartTypes";
 import { format, parseISO } from 'date-fns';
 import { motion } from "framer-motion";
+import { ClipLoader } from "react-spinners";
 
 // Componente para exibir o status de pagamento
 const StatusBadge = ({ status }: { status: string }) => {
@@ -12,7 +13,8 @@ const StatusBadge = ({ status }: { status: string }) => {
   const statusColors: Record<string, string> = {
     Pago: "bg-green-100 text-green-800",
     Processando: "bg-yellow-100 text-yellow-800",
-    default: "bg-gray-100 text-gray-800",
+    Cancelado: "bg-red-100 text-red-800",
+    default: "bg-gray-100 text-gray-800"
   };
 
   return (
@@ -26,6 +28,9 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const TransactionItem = ({ transaction, mobile = false }: { transaction: TransactionResponse, mobile?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, isLoading] = useState(false);
+
+  const { updateTransaction, fetchTransactions } = useTransaction();
 
   const formattedDate = format(parseISO(transaction.createdAt), "dd/MM/yyyy");
   const subtotal = transaction.cart.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
@@ -33,45 +38,74 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
   const total = subtotal - discount;
   const paymentMethod = transaction.paymentMethod ? PaymentMethod[transaction.paymentMethod] || transaction.paymentMethod : "Desconhecido";
 
+  const handleCancelTransaction = async () => {
+    isLoading(true);
+    await updateTransaction({ status: "canceled" }, transaction.id);
+    await fetchTransactions();
+    isLoading(false);
+  }
+
   if (mobile) {
     return (
-      <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
-        <div className="flex justify-between items-center" onClick={() => setIsOpen(!isOpen)}>
-          <p className="text-lg font-semibold">Pedido #{transaction.id}</p>
-          <button className="text-sm text-blue-600">{isOpen ? "Fechar" : "Detalhes"}</button>
-        </div>
-        <p className="text-sm text-gray-700">{transaction.customerName} - {formattedDate}</p>
-        <p className="text-sm text-gray-700">Total: R$ {transaction.totalAmount}</p>
-        <p className="text-sm text-gray-700">Pagamento: {paymentMethod}</p>
-        <p className="text-sm text-gray-700"><StatusBadge status={transaction.status} /></p>
-        
-        {isOpen && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mt-2 border-t pt-2"
-          >
-            <h3 className="text-md font-bold mb-2">Detalhes</h3>
-            <ul>
-              {transaction.cart.map(item => (
-                <li key={item.id} className="text-sm text-gray-600">{item.name} x{item.quantity || 1} - R${(item.price * (item.quantity || 1)).toFixed(2)}</li>
-              ))}
-            </ul>
-            <div className="mt-2 text-right">
-              <p>Subtotal: <span className="font-semibold">R${subtotal.toFixed(2)}</span></p>
-              <p className="text-red-600">Desconto: <span className="font-semibold">R${discount.toFixed(2)}</span></p>
-              <p className="text-lg font-bold">Total: <span>R${total.toFixed(2)}</span></p>
-            </div>
-          </motion.div>
+      <>
+        {loading && (
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
+          <ClipLoader size={60} color="#111" />
+          </div>
         )}
-      </div>
+        <div className="p-4 border rounded-lg shadow-sm bg-gray-50">
+          <div className="flex justify-between items-center" onClick={() => setIsOpen(!isOpen)}>
+            <p className="text-lg font-semibold">Pedido #{transaction.id}</p>
+            <button className="text-sm text-blue-600">{isOpen ? "Fechar" : "Detalhes"}</button>
+          </div>
+          <p className="text-sm text-gray-700">{transaction.customerName} - {formattedDate}</p>
+          <p className="text-sm text-gray-700">Total: R$ {transaction.totalAmount}</p>
+          <p className="text-sm text-gray-700">Pagamento: {paymentMethod}</p>
+          <p className="text-sm text-gray-700"><StatusBadge status={transaction.status} /></p>
+          
+          {isOpen && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 border-t pt-2"
+            >
+              <h3 className="text-md font-bold mb-2">Detalhes</h3>
+              <ul>
+                {transaction.cart.map(item => (
+                  <li key={item.id} className="text-sm text-gray-600">{item.name} x{item.quantity || 1} - R${(item.price * (item.quantity || 1)).toFixed(2)}</li>
+                ))}
+              </ul>
+              <div className="mt-2 text-right">
+                <p>Subtotal: <span className="font-semibold">R${subtotal.toFixed(2)}</span></p>
+                <p className="text-red-600">Desconto: <span className="font-semibold">R${discount.toFixed(2)}</span></p>
+                <p className="text-lg font-bold">Total: <span>R${total.toFixed(2)}</span></p>
+              </div>
+              {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+                <div className="mt-4 text-center">
+                  <button 
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                    onClick={handleCancelTransaction}
+                  >
+                    Cancelar Pedido
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
     <>
+      {loading && (
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
+        <ClipLoader size={60} color="#111" />
+        </div>
+      )}
       <tr className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
         <td className="p-4 text-sm text-gray-700">#{transaction.id}</td>
         <td className="p-4 text-sm text-gray-700">{transaction.customerName}</td>
@@ -81,7 +115,7 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
         <td className="p-4">
           <StatusBadge status={transaction.status} />
         </td>
-     </tr>
+      </tr>
       {isOpen && (
         <tr>
           <td colSpan={6} className="p-4 bg-gray-100">
@@ -126,6 +160,16 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                     </tr>
                   </tbody>
                 </table>
+                {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+                  <div className="mt-4 text-center">
+                    <button 
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                      onClick={handleCancelTransaction}
+                    >
+                      Cancelar Pedido
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </td>
