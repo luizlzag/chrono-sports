@@ -87,7 +87,7 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
             return;
         }
         setLoading(true);
-        await updateTransaction({ paymentMethod: paymentMethod, customerName: customerName }, transaction.id);
+        await updateTransaction({ paymentMethod: paymentMethod, customerName: customerName, status: 'waiting_payment' }, transaction.id);
         setCheckoutStep("payment");
         setLoading(false);
     };
