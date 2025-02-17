@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useCallback } from "react";
-import { getRecentTransaction, createTransaction, updateTransaction, getTransaction, getTransactions } from "@/api/axios/api";
+import { getRecentTransaction, createTransaction, updateTransaction, getTransaction, getTransactions, deleteTransaction } from "@/api/axios/api";
 import { Item } from "@/app/types/cartTypes";
 import { handleTransactionError } from "./errorHandler";
 
@@ -38,6 +38,7 @@ interface TransactionContextType {
     updateTransaction: (transactionData: TransactionRequest, transactionId: number) => Promise<void>;
     getTransaction: (transactionId: number) => Promise<void>;
     fetchTransactions: () => Promise<void>;
+    deleteTransaction: (transactionId: number) => Promise<void>;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -91,8 +92,18 @@ export const TransactionProvider = ({ children }: { children: React.ReactNode })
         }
     }, []);
 
+    const handleDeleteTransaction = async (transactionId: number) => {
+        try {
+            await deleteTransaction(transactionId);
+            fetchTransaction();
+        } catch (error) {
+            handleTransactionError();
+        }
+    }
+
     return (
-        <TransactionContext.Provider value={{ transaction, transactions, setTransaction, fetchTransaction, createTransaction: handleCreateTransaction, updateTransaction: handleUpdateTransaction, getTransaction: handleGetTransaction, fetchTransactions }}>
+        <TransactionContext.Provider value={
+            { transaction, transactions, setTransaction, fetchTransaction, createTransaction: handleCreateTransaction, updateTransaction: handleUpdateTransaction, getTransaction: handleGetTransaction, fetchTransactions, deleteTransaction: handleDeleteTransaction}}>
             {children}
         </TransactionContext.Provider>
     );

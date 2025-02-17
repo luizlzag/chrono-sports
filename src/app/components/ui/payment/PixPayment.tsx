@@ -1,63 +1,78 @@
-import Image from 'next/image';
-import { useState } from 'react';
+import { useState } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { CheckCircle, ClipboardCopy, ArrowLeft } from "lucide-react";
+import { TransactionResponse } from "@/context/TransactionContext";
+
+const cnpj = "00.000.000/0000-00";
+const qrCodePixImage = "/qrcode-pix.png";
 
 interface PixPaymentProps {
-    amount: number;
-    qrCode: string;
-    codigo: string;
-    loading: boolean;
-    pixInfo: {
-        key: string;
-        name: string;
-        city: string;
-        transactionId: string;
-        message: string;
-    };
-    formatter: Intl.NumberFormat;
-    downloadQrCode: () => void;
-    onSwitchToCard: () => void;
-    divRef: React.RefObject<HTMLDivElement>;
+  transaction: TransactionResponse | null;
+  onBack: () => void;
 }
 
-export default function PixPayment({
-  amount,
-  qrCode,
-  codigo,
-  loading,
-  pixInfo,
-  formatter,
-  downloadQrCode,
-  onSwitchToCard,
-  divRef
-}: PixPaymentProps) {
-    return (
-        <div ref={divRef} className="bg-white p-4 shadow-lg rounded-lg w-80 text-center">
-        <h1 className="text-xl font-bold text-gray-800 mb-4">Pagamento via PIX</h1>
-        <p className="text-gray-600">Nome: {pixInfo.name}</p>
-        <p className="text-gray-600">Cidade: {pixInfo.city}</p>
-        <p className="text-gray-600 mb-4">Mensagem: {pixInfo.message}</p>
+export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
+  const [copied, setCopied] = useState(false);
 
-        {loading ? (
-            <p className="text-gray-500">Gerando QR Code...</p>
+  const handleCopy = () => {
+    navigator.clipboard.writeText(cnpj);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div
+      className="bg-white p-6 shadow-xl rounded-lg w-full max-w-sm mx-auto text-center"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h1 className="text-2xl font-semibold text-gray-800 mb-3">Pagamento via PIX</h1>
+      <p className="text-gray-600 text-sm">Cliente: <span className="font-medium">{transaction?.customerName}</span></p>
+
+      <div className="mt-4 mb-4 bg-gray-100 p-4 rounded-lg">
+        {qrCodePixImage ? (
+          <Image 
+            src={qrCodePixImage} 
+            alt="QR Code PIX" 
+            className="mx-auto rounded-md shadow-sm" 
+            width={220} 
+            height={220} 
+          />
         ) : (
-            <div className="mb-4">
-            {qrCode ? <Image src={qrCode} alt="QR Code PIX" className="mx-auto" /> : <p className="text-red-600">Erro ao gerar QR Code</p>}
-            </div>
+          <p className="text-red-600">Erro ao gerar QR Code</p>
         )}
+      </div>
 
-        <p className="text-xl font-bold text-gray-800">{formatter.format(amount)}</p>
+      <p className="text-xl font-bold text-gray-800 mb-3">Total: R$ {transaction?.totalAmount}</p>
 
-        <div className="mt-4 flex space-x-2">
-            <button onClick={downloadQrCode} className="bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700">
-            Baixar QR Code
-            </button>
-            <button onClick={() => navigator.clipboard.writeText(codigo)} className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700">
-            Copiar Código PIX
-            </button>
-            <button onClick={onSwitchToCard} className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700">
-            Venda por cartão
-            </button>
-        </div>
-        </div>
-    );
+      <div className="flex flex-col gap-3 mt-4">
+        <button 
+          onClick={handleCopy} 
+          className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+        >
+          {copied ? (
+            <>
+              <CheckCircle size={20} className="mr-2 text-white" />
+              CNPJ Copiado!
+            </>
+          ) : (
+            <>
+              <ClipboardCopy size={20} className="mr-2 text-white" />
+              Copiar CNPJ
+            </>
+          )}
+        </button>
+
+        <button 
+          onClick={onBack} 
+          className="flex items-center justify-center bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+        >
+          <ArrowLeft size={20} className="mr-2" />
+          Voltar
+        </button>
+      </div>
+    </motion.div>
+  );
 }

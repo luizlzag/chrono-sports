@@ -14,11 +14,12 @@ const CartContainer: React.FC = () => {
     const [isFetched, setIsFetched] = useState(false);
 
     useEffect(() => {
+        console.log("Fetching transaction data...");
         if (!isFetched) {
             const fetchTransactionData = async () => {
                 try {
                     await fetchTransaction();
-                    setIsFetched(true); // Atualiza estado para indicar que a função foi chamada
+                    setIsFetched(true);
                 } catch (error) {
                     console.error('Error fetching transaction:', error);
                 }
