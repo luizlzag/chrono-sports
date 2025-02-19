@@ -14,7 +14,7 @@ import { SendWhatsAppMessage } from "@/app/utils/Common";
 interface CardPaymentProps {
   transaction: TransactionResponse | null;
   router: AppRouterInstance;
-  onBack: () => void; // Callback para notificar que devemos voltar à etapa anterior (checkoutStep === "cart")
+  onBack: (status: string|null) => void; // Callback para notificar que devemos voltar à etapa anterior (checkoutStep === "cart")
 }
 
 export default function CardPayment({
@@ -35,7 +35,7 @@ export default function CardPayment({
       alert(
         "Erro ao criar link de pagamento. Redirecionando para o carrinho."
       );
-      onBack();
+      onBack(null);
       return;
     }
 
@@ -60,21 +60,19 @@ export default function CardPayment({
       try {
         if (transaction && !success) {
           await getTransaction(transaction.id);
-          // Se o status da transação for "paid", o pagamento foi concluído com sucesso
           if (transaction.status === "paid") {
             clearInterval(interval);
             setSuccess(true);
-            // Após 3 segundos, volta para o carrinho (checkoutStep === "cart")
             setTimeout(() => {
-              onBack();
+              onBack(null);
             }, 3000);
-            onBack();
+            onBack(null);
           }
         } else {
           alert(
             "Erro ao atualizar transação. Redirecionando para o carrinho."
           );
-          onBack();
+          onBack("canceled");
           return;
         }
       } catch (error) {
@@ -140,7 +138,7 @@ export default function CardPayment({
         <Send size={20} className="mr-2" /> Enviar via WhatsApp
       </button>
       <button
-        onClick={onBack}
+        onClick={() => onBack(null)}
         className="bg-red-600 text-white px-3 py-1.5 rounded hover:bg-red-700 w-full"
       >
         Voltar

@@ -9,7 +9,7 @@ const qrCodePixImage = "/qrcode-pix.png";
 
 interface PixPaymentProps {
   transaction: TransactionResponse | null;
-  onBack: () => void;
+  onBack: (status: string|null) => void;
 }
 
 export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
@@ -21,6 +21,14 @@ export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
     >
+      <button 
+        onClick={() => onBack(null)} 
+        className="flex items-center text-gray-600 hover:text-gray-800 transition"
+      >
+        <ArrowLeft size={24} />
+        <span className="ml-2">Voltar</span>
+      </button>
+
       <h1 className="text-2xl font-semibold text-gray-800 mb-3">Pagamento via PIX</h1>
       <p className="text-gray-600 text-sm">Cliente: <span className="font-medium">{transaction?.customerName}</span></p>
 
@@ -43,16 +51,21 @@ export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
       <div className="flex flex-col gap-3 mt-4">
         <button 
           onClick={() => SendWhatsAppMessage(chavePix)} 
-          className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+          className="flex items-center justify-center bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
         >
           Enviar chave PIX WhatsApp
         </button>
         <button 
-          onClick={onBack} 
-          className="flex items-center justify-center bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+          onClick={() => onBack("cancel")} 
+          className="flex items-center justify-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
         >
-          <ArrowLeft size={20} className="mr-2" />
-          Voltar
+          Cancelar Transação
+        </button>
+        <button 
+          onClick={() => onBack("processing")} 
+          className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+        >
+          Pagamento Recebido
         </button>
       </div>
     </motion.div>
