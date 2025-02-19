@@ -9,6 +9,7 @@ import { TransactionResponse } from "@/context/TransactionContext";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useTransaction } from "@/context/TransactionContext";
 import { motion } from "framer-motion";
+import { SendWhatsAppMessage } from "@/app/utils/Common";
 
 interface CardPaymentProps {
   transaction: TransactionResponse | null;
@@ -133,18 +134,7 @@ export default function CardPayment({
       </div>
       {copied && <div className="text-green-600 text-sm mb-2">Copiado!</div>}
       <button
-        onClick={() => {
-          const isMobile =
-            /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-              navigator.userAgent
-            );
-        
-          const whatsappBaseURL = isMobile
-            ? "https://wa.me/?text="
-            : "https://web.whatsapp.com/send?text=";
-        
-          window.open(whatsappBaseURL + encodeURIComponent(paymentLink || ""), "_blank");
-        }}
+        onClick={() => SendWhatsAppMessage(paymentLink || "")}
         className="bg-green-600 text-white px-3 py-1.5 rounded hover:bg-green-700 flex items-center justify-center w-full mb-2"
       >
         <Send size={20} className="mr-2" /> Enviar via WhatsApp

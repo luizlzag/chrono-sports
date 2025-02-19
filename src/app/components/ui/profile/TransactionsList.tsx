@@ -82,7 +82,7 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                 <p className="text-red-600">Desconto: <span className="font-semibold">R${discount.toFixed(2)}</span></p>
                 <p className="text-lg font-bold">Total: <span>R${total.toFixed(2)}</span></p>
               </div>
-              {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+              {transaction.status !== "canceled" && transaction.paymentMethod === "PIX" && (
                 <div className="mt-4 text-center">
                   <button 
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
@@ -160,7 +160,7 @@ const TransactionItem = ({ transaction, mobile = false }: { transaction: Transac
                     </tr>
                   </tbody>
                 </table>
-                {transaction.status !== "canceled" && transaction.paymentMethod !== "PIX" && (
+                {transaction.status !== "canceled" && transaction.paymentMethod === "PIX" && (
                   <div className="mt-4 text-center">
                     <button 
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
@@ -258,6 +258,7 @@ const TransactionList = () => {
               <option value="Todos">Todos Status</option>
               <option value="paid">Pago</option>
               <option value="waiting_payment">Processando</option>
+              <option value="canceled">Cancelado</option>
             </select>
 
             <select
@@ -267,7 +268,6 @@ const TransactionList = () => {
             >
               <option value="Todos">Todos Pagamentos</option>
               <option value="CREDIT_CARD">Crédito</option>
-              <option value="DEBIT_CARD">Débito</option>
               <option value="PIX">Pix</option>
             </select>
           </div>
