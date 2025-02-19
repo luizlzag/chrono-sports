@@ -1,12 +1,17 @@
 "use client";
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Package, Menu, X, ArrowLeft } from "lucide-react";
 import TransactionList from "./TransactionsList";
 import StockPage from "./StockList";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import logo from '../../../../../public/logo_black.png';
+import Image from 'next/image'
 
 const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage: string; setActivePage: (page: string) => void; isOpen: boolean; toggleMenu: () => void }) => {
+  const router = useRouter();
+  const handleBack = () => router.push("/pages/home");
+
   return (
     <aside
       className={`fixed top-0 left-0 h-screen overflow-y-auto w-64 bg-gray-100 p-4 shadow-lg transform transition-transform md:translate-x-0 z-50 ${
@@ -14,7 +19,14 @@ const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage
       } md:w-64 md:block`}
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Chrono Sports</h2>
+        <Image
+          src={logo}
+          alt='logo'
+          width={80}
+          height={80}
+          onClick={handleBack}
+          className="cursor-pointer"
+        />
         <button className="md:hidden" onClick={toggleMenu}>
           <X size={24} />
         </button>
