@@ -17,9 +17,9 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
     const { transaction, updateTransaction } = useTransaction();
 
     const [loading, setLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<string>(transaction?.paymentMethod ?? "CREDIT_CARD");
-    const [customerName, setCustomerName] = useState<string>(transaction?.customerName ?? "");
-    const [checkoutStep, setCheckoutStep] = useState<"cart" | "payment">(transaction?.paymentMethod ? "payment" : "cart");
+    const [paymentMethod, setPaymentMethod] = useState<string>("CREDIT_CARD");
+    const [customerName, setCustomerName] = useState<string>("");
+    const [checkoutStep, setCheckoutStep] = useState<"cart" | "payment">("cart");
 
     const router = useRouter();
 
