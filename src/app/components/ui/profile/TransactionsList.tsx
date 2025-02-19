@@ -258,6 +258,7 @@ const TransactionList = () => {
               <option value="Todos">Todos Status</option>
               <option value="paid">Pago</option>
               <option value="waiting_payment">Processando</option>
+              <option value="canceled">Cancelado</option>
             </select>
 
             <select
@@ -267,7 +268,6 @@ const TransactionList = () => {
             >
               <option value="Todos">Todos Pagamentos</option>
               <option value="CREDIT_CARD">Crédito</option>
-              <option value="DEBIT_CARD">Débito</option>
               <option value="PIX">Pix</option>
             </select>
           </div>

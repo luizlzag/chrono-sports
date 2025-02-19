@@ -1,10 +1,10 @@
-import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { CheckCircle, ClipboardCopy, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { TransactionResponse } from "@/context/TransactionContext";
+import { SendWhatsAppMessage } from "@/app/utils/Common";
 
-const cnpj = "00.000.000/0000-00";
+const chavePix = "00.000.000/0000-00";
 const qrCodePixImage = "/qrcode-pix.png";
 
 interface PixPaymentProps {
@@ -13,13 +13,6 @@ interface PixPaymentProps {
 }
 
 export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(cnpj);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <motion.div
@@ -49,22 +42,11 @@ export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
 
       <div className="flex flex-col gap-3 mt-4">
         <button 
-          onClick={handleCopy} 
+          onClick={() => SendWhatsAppMessage(chavePix)} 
           className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
         >
-          {copied ? (
-            <>
-              <CheckCircle size={20} className="mr-2 text-white" />
-              CNPJ Copiado!
-            </>
-          ) : (
-            <>
-              <ClipboardCopy size={20} className="mr-2 text-white" />
-              Copiar CNPJ
-            </>
-          )}
+          Enviar chave PIX WhatsApp
         </button>
-
         <button 
           onClick={onBack} 
           className="flex items-center justify-center bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
