@@ -18,9 +18,25 @@ const CheckoutStep: React.FC<CheckoutStepProps> = ({
   router,
   setCheckoutStep
 }) => {
-  const { fetchTransaction } = useTransaction();
+  const { fetchTransaction, updateTransaction } = useTransaction();
 
-  const handleBack = async () => {
+  const handleBack = async (status: string|null) => {
+    if (!transaction) {
+      alert("Erro ao atualizar transação: transação não encontrada.");
+      return;
+    }
+
+    switch (status) {
+      case "cancel":
+        await updateTransaction({ status: "canceled" }, transaction?.id);
+        break;
+      case "processing":
+        await updateTransaction({ status: "waiting_payment" }, transaction?.id);
+        break;
+      default:
+        break;
+    }
+
     await fetchTransaction();
     setCheckoutStep("cart");
   };
