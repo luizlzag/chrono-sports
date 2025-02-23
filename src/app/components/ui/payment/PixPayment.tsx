@@ -5,7 +5,7 @@ import { TransactionResponse } from "@/context/TransactionContext";
 import { SendWhatsAppMessage } from "@/app/utils/Common";
 
 const chavePix = "00.000.000/0000-00";
-const qrCodePixImage = "/qrcode-pix.png";
+const qrCodePixImage = "/pix.png";
 
 interface PixPaymentProps {
   transaction: TransactionResponse | null;
