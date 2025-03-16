@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Package, Menu, X, ArrowLeft } from "lucide-react";
@@ -7,6 +7,8 @@ import TransactionList from "./TransactionsList";
 import StockPage from "./StockList";
 import logo from '../../../../../public/logo_black.png';
 import Image from 'next/image'
+import { useStockConfirmation } from "@/context/StockConfirmationContext";
+import StockConfirmationModal from "../modals/StockConfirmationModal";
 
 const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage: string; setActivePage: (page: string) => void; isOpen: boolean; toggleMenu: () => void }) => {
   const router = useRouter();
@@ -68,13 +70,36 @@ const NewProfilePage = () => {
   const [activePage, setActivePage] = useState("transactions");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [queryClient] = useState(() => new QueryClient());
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
   const router = useRouter();
+
+  const { stockConfirmed, fetchStockConfirmed } = useStockConfirmation();
+
+  useEffect(() => {
+    if (!isFetched) {
+      const fetchStockConfirmedData = async () => {
+        await fetchStockConfirmed();
+        setIsFetched(true);
+      }
+      fetchStockConfirmedData();
+    }
+    if (stockConfirmed === false) {
+      setShowStockModal(true);
+    }
+  }, [fetchStockConfirmed, isFetched, stockConfirmed]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const handleBack = () => router.push("/pages/home");
 
   return (
     <QueryClientProvider client={queryClient}>
+      {showStockModal && (
+        <StockConfirmationModal
+          onConfirm={() => setShowStockModal(false)}
+        />
+      )}
+
       <div className="flex min-h-screen h-screen relative">
         {/* Botão de abrir menu no mobile */}
         <button className="md:hidden fixed top-2 left-2 z-50 bg-gray-200 p-2 rounded" onClick={toggleMenu}>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Passion_One } from "next/font/google";
 import { TransactionProvider } from "@/context/TransactionContext";
 import { PaymentProvider } from "@/context/PaymentContext";
+import { StockConfirmationProvider } from "@/context/StockConfirmationContext";
 import { Toaster } from "react-hot-toast";
 
 import "./globals.css";
@@ -24,12 +25,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <PaymentProvider>
-          <TransactionProvider>
-            <Toaster />
-            {children}
-          </TransactionProvider>
-        </PaymentProvider>
+        <StockConfirmationProvider>
+          <PaymentProvider>
+            <TransactionProvider>
+              <Toaster />
+              {children}
+            </TransactionProvider>
+          </PaymentProvider>
+        </StockConfirmationProvider>
       </body>
     </html>
   );

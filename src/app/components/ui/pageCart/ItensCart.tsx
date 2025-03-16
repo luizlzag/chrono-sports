@@ -105,10 +105,10 @@ export const ItensCart: React.FC<ItensCartProps> = ({ openCart, setOpenCart }) =
             }`}
         >
             <div
-            className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer"
-            onClick={() => setOpenCart(!openCart)}
+                className="fixed rounded-full bottom-2 right-2 py-3 px-3 bg-red-700 opacity-90 hover:opacity-100 z-50 cursor-pointer"
+                onClick={() => setOpenCart(!openCart)}
             >
-            <IoMdAdd size={24} color="white" />
+                <IoMdAdd size={24} color="white" />
             </div>
             {openCart && (
             <div className="z-50">

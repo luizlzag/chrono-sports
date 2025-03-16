@@ -1,33 +1,51 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useTransaction } from "@/context/TransactionContext";
+import { useStockConfirmation } from "@/context/StockConfirmationContext";
 import { Item } from "@/app/types/cartTypes";
 import { ClipLoader } from "react-spinners";
 import { Itens } from "./Itens";
 import { ItensCart } from "./ItensCart";
+import StockConfirmationModal from "../modals/StockConfirmationModal";
+import { open } from "node:fs/promises";
 
 const CartContainer: React.FC = () => {
     const [openCart, setOpenCart] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
-    const { transaction, updateTransaction, createTransaction, fetchTransaction } = useTransaction();
     const [isFetched, setIsFetched] = useState(false);
+    const [showStockModal, setShowStockModal] = useState(false);
+
+    const { transaction, updateTransaction, createTransaction, fetchTransaction } = useTransaction();
+    const { stockConfirmed, fetchStockConfirmed } = useStockConfirmation();
 
     useEffect(() => {
-        console.log("Fetching transaction data...");
         if (!isFetched) {
             const fetchTransactionData = async () => {
-                try {
-                    await fetchTransaction();
-                    setIsFetched(true);
-                } catch (error) {
-                    console.error('Error fetching transaction:', error);
-                }
+                await fetchTransaction();
+                setIsFetched(true);
             };
 
+            const fetchStockConfirmedData = async () => {
+                await fetchStockConfirmed();
+            }
+
             fetchTransactionData();
+            fetchStockConfirmedData();
         }
-    }, [fetchTransaction, isFetched]);
+    }, [fetchStockConfirmed, fetchTransaction, isFetched]);
+
+    useEffect(() => {
+        if (stockConfirmed === false) {
+            setShowStockModal(true);
+        }
+    }, [stockConfirmed]);
+
+    const canOpenCart = (state: React.SetStateAction<boolean>) => {
+        if (stockConfirmed) {
+            setOpenCart(state)
+        }
+    }
 
     const addToCart = (item: Item) => {
         setLoading(true);
@@ -65,6 +83,13 @@ const CartContainer: React.FC = () => {
                     <ClipLoader size={60} color="#fff" />
                 </div>
             )}
+
+            {showStockModal && (
+                <StockConfirmationModal
+                    onConfirm={() => setShowStockModal(false)}
+                />
+            )}
+
             <div className={`${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                 <div className="mb-4">
                     <input
@@ -76,7 +101,7 @@ const CartContainer: React.FC = () => {
                     />
                 </div>
                 <Itens addToCart={addToCart} searchTerm={searchTerm} />
-                <ItensCart openCart={openCart} setOpenCart={setOpenCart} />
+                <ItensCart openCart={openCart} setOpenCart={canOpenCart} />
             </div>
         </div>
     );
