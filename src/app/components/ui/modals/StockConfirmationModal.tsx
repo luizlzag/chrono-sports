@@ -77,7 +77,7 @@ const StockConfirmationModal: React.FC<StockConfirmationModalProps> = ({ onConfi
                         <thead className="bg-gray-200 text-gray-700 text-sm">
                             <tr>
                                 <th className="p-2 w-1/2">Produto</th>
-                                <th className="p-2 w-1/6 text-center">Quantidade no sistema</th>
+                                <th className="p-2 w-1/6 text-center">Quantidade Sistema</th>
                                 <th className="p-2 w-1/6 text-center">Seu Estoque Real</th>
                             </tr>
                         </thead>
