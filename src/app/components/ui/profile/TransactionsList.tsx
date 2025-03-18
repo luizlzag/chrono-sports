@@ -12,6 +12,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   const statusColors: Record<string, string> = {
     Pago: "bg-green-100 text-green-800",
+    "Comissão recebida": "bg-blue-100 text-blue-800",
     Processando: "bg-yellow-100 text-yellow-800",
     Cancelado: "bg-red-100 text-red-800",
     default: "bg-gray-100 text-gray-800"
@@ -259,6 +260,7 @@ const TransactionList = () => {
               <option value="paid">Pago</option>
               <option value="waiting_payment">Processando</option>
               <option value="canceled">Cancelado</option>
+              <option value="commission_paid">Comissão recebida</option>
             </select>
 
             <select
