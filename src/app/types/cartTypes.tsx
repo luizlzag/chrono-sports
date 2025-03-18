@@ -20,5 +20,6 @@ export const PaymentStatus: PaymentTypes = {
     paid: "Pago",
     waiting_payment: "Processando",
     pending: "Processando",
-    canceled: "Cancelado"
+    canceled: "Cancelado",
+    comission_paid: "Comissão recebida"
 };
