@@ -23,6 +23,7 @@ export interface TransactionResponse {
     status: string;
     cart: Item[];
     totalAmount: string;
+    totalComission: number;
     currency: string;
     createdAt: string;
     updatedAt: string;

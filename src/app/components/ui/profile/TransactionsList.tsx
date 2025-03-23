@@ -214,6 +214,16 @@ const TransactionList = () => {
 
   const totalItems = filteredTransactions.length ?? 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const pageLimit = 5;
+  const groupStart = Math.floor((currentPage - 1) / pageLimit) * pageLimit + 1;
+  const groupEnd = Math.min(groupStart + pageLimit - 1, totalPages);
+
+  const totalValueSold = filteredTransactions.reduce((acc, item) => {
+    return acc + Number(item.totalAmount || 0);
+  }, 0);
+  const totalComissionGenerated = filteredTransactions.reduce((acc, item) => {
+    return acc + Number(item.totalComission || 0);
+  }, 0);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
@@ -298,15 +308,49 @@ const TransactionList = () => {
               <TransactionItem key={transaction.id} transaction={transaction} mobile />
             ))}
           </div>
+
+          <div className="border-t p-4">
+            <span>Subtotais: </span>
+            <p>Total vendido: {totalValueSold.toFixed(2)}</p> 
+            <p>Total comissão recebida: {totalComissionGenerated.toFixed(2)}</p> 
+          </div>
           
           <div className="flex justify-between items-center p-4 border-t">
-            <span className="text-sm text-gray-600">Mostrando {startIndex + 1}-{endIndex} de {totalItems}</span>
-            <div className="flex justify-center p-4 border-t">
-              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50">&lt;</button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button key={page} onClick={() => handlePageChange(page)} className={`px-3 py-1 mx-1 border rounded ${currentPage === page ? "bg-red-600 text-white" : "bg-white"}`}>{page}</button>
+            <span className="text-sm text-gray-600">
+              Mostrando {startIndex + 1}-{endIndex} de {totalItems}
+            </span>
+            
+            <div className="flex justify-center p-4">
+              {/* Botão anterior */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50"
+              >
+                &lt;
+              </button>
+
+              {/* Páginas limitadas */}
+              {Array.from({ length: groupEnd - groupStart + 1 }, (_, i) => groupStart + i).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-1 mx-1 border rounded ${
+                    currentPage === page ? "bg-red-600 text-white" : "bg-white"
+                  }`}
+                >
+                  {page}
+                </button>
               ))}
-              <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50">&gt;</button>
+
+              {/* Botão próximo */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 mx-1 border rounded bg-red-600 disabled:opacity-50"
+              >
+                &gt;
+              </button>
             </div>
           </div>
         </div>
