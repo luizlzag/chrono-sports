@@ -1,6 +1,7 @@
-import { getStock, createStockConfirmation } from "@/api/axios/api";
+import { getStock } from "@/api/axios/api";
 import { Item } from "@/app/types/cartTypes";
 import React, { useEffect, useState } from "react";
+import { useStockConfirmation } from "@/context/StockConfirmationContext";
 
 interface StockConfirmationModalProps {
     onConfirm: (state: boolean) => void;
@@ -17,12 +18,14 @@ const fetchStock = async (): Promise<Item[]> => {
         id: product.id,
         name: product.name,
         quantity: product.stock.length > 0 ? product.stock[0].quantity : 0,
-        newQuantity: null
+        newQuantity: ""
     }));
 };
 
 const StockConfirmationModal: React.FC<StockConfirmationModalProps> = ({ onConfirm }) => {
     const [stockItems, setStockItems] = useState<Item[]>([]);
+
+    const { updateStockConfirmation } = useStockConfirmation();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -44,13 +47,13 @@ const StockConfirmationModal: React.FC<StockConfirmationModalProps> = ({ onConfi
         const postData = {
             detail: stockItems.map((item) => ({
                 id: item.id,
-                oldQuantity: item.quantity, // Quantidade original no sistema
-                newQuantity: Number(item.newQuantity), // Nova quantidade informada pelo usuário
+                oldQuantity: item.quantity,
+                newQuantity: Number(item.newQuantity),
                 name: item.name,
-                imageUrl: item.imageUrl ?? null, // Garantir que seja null caso não exista
+                imageUrl: item.imageUrl ?? null,
             })),
         };
-        await createStockConfirmation(postData);
+        await updateStockConfirmation(postData);
         onConfirm(true);
     }
 

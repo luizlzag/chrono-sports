@@ -84,7 +84,7 @@ const NewProfilePage = () => {
       }
       fetchStockConfirmedData();
     }
-    if (stockConfirmed === false) {
+    if (stockConfirmed.confirmed === true) {
       setShowStockModal(true);
     }
   }, [fetchStockConfirmed, isFetched, stockConfirmed]);
