@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { handleTransactionError } from "./errorHandler";
 import { getStockConfirmation } from '@/api/axios/api';
+import { createStockConfirmation } from "@/api/axios/api";
 
 export type StockConfirmationGetResponse = {
     confirmed?: boolean;
@@ -9,21 +10,32 @@ export type StockConfirmationGetResponse = {
 }
 
 interface StockConfirmation {
-    stockConfirmed: boolean;
-    setStockConfirmed: (state: boolean) => void;
-    fetchStockConfirmed: () => Promise<StockConfirmationGetResponse>;
+    stockConfirmed: { confirmed: boolean | null, message: string | null };
+    fetchStockConfirmed: () => Promise<void>;
+    updateStockConfirmation: (updateData: any) => Promise<void>;
 }
 
 const StockConfirmationContext = createContext<StockConfirmation | undefined>(undefined);
 
 export function StockConfirmationProvider({ children }: { children: ReactNode }) {
-    const [stockConfirmed, setStockConfirmed] = useState<boolean>(true);
+    const [stockConfirmed, setStockConfirmed] = useState({
+        confirmed: null, message: null
+    });
 
-    const fetchStockConfirmed = async (): Promise<StockConfirmationGetResponse> => {
+    const fetchStockConfirmed = async (): Promise<void> => {
         try {
             const data = await getStockConfirmation();
-            setStockConfirmed(data.confirmed);
-            return data;
+            setStockConfirmed(data);
+        } catch (err) {
+            handleTransactionError();
+            throw Error("Error fetching stockConfirmations");
+        }
+    }
+
+    const updateStockConfirmation = async (updateData: any): Promise<void> => {
+        try {
+            const data = await createStockConfirmation(updateData);
+            await fetchStockConfirmed();
         } catch (err) {
             handleTransactionError();
             throw Error("Error fetching stockConfirmations");
@@ -31,7 +43,7 @@ export function StockConfirmationProvider({ children }: { children: ReactNode })
     }
     
     return (
-        <StockConfirmationContext.Provider value={{ stockConfirmed, setStockConfirmed, fetchStockConfirmed }}>
+        <StockConfirmationContext.Provider value={{ stockConfirmed, fetchStockConfirmed, updateStockConfirmation }}>
             { children }
         </StockConfirmationContext.Provider>
     );

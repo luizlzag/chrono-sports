@@ -7,7 +7,6 @@ import { ClipLoader } from "react-spinners";
 import { Itens } from "./Itens";
 import { ItensCart } from "./ItensCart";
 import StockConfirmationModal from "../modals/StockConfirmationModal";
-import { open } from "node:fs/promises";
 
 const CartContainer: React.FC = () => {
     const [openCart, setOpenCart] = useState(false);
@@ -36,7 +35,7 @@ const CartContainer: React.FC = () => {
     }, [fetchStockConfirmed, fetchTransaction, isFetched]);
 
     useEffect(() => {
-        if (stockConfirmed === false) {
+        if (stockConfirmed.confirmed === true) {
             setShowStockModal(true);
         }
     }, [stockConfirmed]);
