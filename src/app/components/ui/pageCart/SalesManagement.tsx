@@ -35,7 +35,7 @@ const CartContainer: React.FC = () => {
     }, [fetchStockConfirmed, fetchTransaction, isFetched]);
 
     useEffect(() => {
-        if (stockConfirmed.confirmed === true) {
+        if (stockConfirmed.confirmed != null) {
             setShowStockModal(true);
         }
     }, [stockConfirmed]);

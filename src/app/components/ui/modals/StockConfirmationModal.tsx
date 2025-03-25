@@ -25,7 +25,7 @@ const fetchStock = async (): Promise<Item[]> => {
 const StockConfirmationModal: React.FC<StockConfirmationModalProps> = ({ onConfirm }) => {
     const [stockItems, setStockItems] = useState<Item[]>([]);
 
-    const { updateStockConfirmation } = useStockConfirmation();
+    const { stockConfirmed, updateStockConfirmation } = useStockConfirmation();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -53,7 +53,8 @@ const StockConfirmationModal: React.FC<StockConfirmationModalProps> = ({ onConfi
                 imageUrl: item.imageUrl ?? null,
             })),
         };
-        await updateStockConfirmation(postData);
+        if (!stockConfirmed.confirmed?.id) throw new Error("confirmation not found");
+        await updateStockConfirmation(stockConfirmed.confirmed?.id, postData);
         onConfirm(true);
     }
 
