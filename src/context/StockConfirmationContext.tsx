@@ -2,17 +2,21 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { handleTransactionError } from "./errorHandler";
 import { getStockConfirmation } from '@/api/axios/api';
-import { createStockConfirmation } from "@/api/axios/api";
+import { updateStockConfirmation as updateRequest } from "@/api/axios/api";
+
+export type StockConfirmationModel = {
+    id: number
+}
 
 export type StockConfirmationGetResponse = {
-    confirmed?: boolean;
+    confirmed?: StockConfirmationModel | null;
     message?: string;
 }
 
 interface StockConfirmation {
-    stockConfirmed: { confirmed: boolean | null, message: string | null };
+    stockConfirmed: { confirmed: StockConfirmationModel | null, message: string | null };
     fetchStockConfirmed: () => Promise<void>;
-    updateStockConfirmation: (updateData: any) => Promise<void>;
+    updateStockConfirmation: (id: number, updateData: any) => Promise<void>;
 }
 
 const StockConfirmationContext = createContext<StockConfirmation | undefined>(undefined);
@@ -32,9 +36,9 @@ export function StockConfirmationProvider({ children }: { children: ReactNode })
         }
     }
 
-    const updateStockConfirmation = async (updateData: any): Promise<void> => {
+    const updateStockConfirmation = async (id: number, updateData: any): Promise<void> => {
         try {
-            const data = await createStockConfirmation(updateData);
+            await updateRequest(id, updateData);
             await fetchStockConfirmed();
         } catch (err) {
             handleTransactionError();

@@ -105,3 +105,4 @@ export const deleteTransaction = async (transactionId) => deleteData(`/transacti
 // Confirmação de Estoque
 export const getStockConfirmation = async () => fetchData("/stock-confirmation/confirmation");
 export const createStockConfirmation = async (createData) => postData("/stock-confirmation/confirmation", createData);
+export const updateStockConfirmation = async (id, createData) => putData(`/stock-confirmation/confirmation/${id}`, createData);
