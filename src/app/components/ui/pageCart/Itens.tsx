@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { IoMdAddCircle } from "react-icons/io";
 import { getProducts } from "@/api/axios/api";
 import { Item } from "@/app/types/cartTypes";
@@ -50,8 +49,8 @@ export const Itens: React.FC<{
             {filteredItems.length ?? 0 > 0 ? filteredItems.map((i) =>
                 <div className="flex" key={i.id}>
                     <div className="w-full rounded shadow py-3 px-3 mb-3 bg-white grid grid-cols-2">
-                        <Image
-                            src={i.imageUrl || '/logo.png'} // Usa a imagem da API ou uma default
+                        <img
+                            src={i.imageUrl || "/logo.png"}
                             alt={i.name}
                             width={80}
                             height={80}

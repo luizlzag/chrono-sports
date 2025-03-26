@@ -4,10 +4,7 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import perf from '../../../../../public/perf.jpg';
-import chronocoin from '../../../../../public/chronocoin-removebg-preview.png';
 
 function AvatarDrop() {
     const router = useRouter();
@@ -73,8 +70,8 @@ function AvatarDrop() {
                     <MenuItem onClick={handleQuiet}>SAIR</MenuItem>
                     <Divider />
                     <MenuItem onClick={handleClose}>
-                        <Image
-                            src={chronocoin}
+                        <img
+                            src="/chronocoin-removebg-preview.png"
                             alt='logo'
                             width={40}
                             height={40}

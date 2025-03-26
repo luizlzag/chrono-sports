@@ -1,7 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import logo from "../../../../../public/logo.png";
-import Image from "next/image";
 import { login } from "../../../../api/axios/api";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +26,7 @@ function LoginPage() {
         <div className="bg-black flex flex-col justify-start items-center px-4 mt-10">
             <div className="w-full max-w-sm">
                 <div className="flex justify-center mb-3">
-                <Image src={logo} alt="Logo da Marca" width={150} height={150} />
+                <img src="/logo.png" alt="Logo da Marca" width={150} height={150} />
                 </div>
                 <h1 className="text-white text-2xl font-bold text-center mb-8">
                 Bem-vindo de volta!

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { TransactionResponse } from "@/context/TransactionContext";
@@ -34,7 +33,7 @@ export default function PixPayment({ transaction, onBack }: PixPaymentProps) {
 
       <div className="mt-4 mb-4 bg-gray-100 p-4 rounded-lg">
         {qrCodePixImage ? (
-          <Image 
+          <img 
             src={qrCodePixImage} 
             alt="QR Code PIX" 
             className="mx-auto rounded-md shadow-sm" 

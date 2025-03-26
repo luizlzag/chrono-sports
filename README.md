@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js + Capacitor Mobile Build (APK)
 
-## Getting Started
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app), configured for building an Android APK using [Capacitor](https://capacitorjs.com/).
 
-First, run the development server:
+---
+
+## Web Development (Local)
+
+To run the web app in development mode:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Mobile Development (Android APK with Capacitor)
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+Ensure the following tools are installed on your system:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Node.js](https://nodejs.org/)
+- [Java JDK 11+](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+- [Android SDK](https://developer.android.com/studio) with:
+  - `sdkmanager`
+  - `zipalign`
+  - `apksigner`
+  - `keytool` (from JDK)
+- [Capacitor CLI](https://capacitorjs.com/docs/getting-started):  
+  ```bash
+  npm install @capacitor/core @capacitor/cli
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+> Tip: Make sure you have the Android Build Tools installed using `sdkmanager`:
+> ```bash
+> sdkmanager "build-tools;34.0.0"
+> ```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Initial Setup (Only once)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Initialize Capacitor in your project:
+    ```bash
+    npx cap init
+    ```
+
+2. Add Android platform:
+    ```bash
+    npx cap add android
+    ```
+
+---
+
+### Build & Generate APK (Every time)
+
+1. **Build your Next.js project:**
+    ```bash
+    npm run build
+    ```
+
+2. **Prepare `public/` folder (if necessary):**
+    ```bash
+    mkdir -p public
+    cp -r .next static public
+    ```
+
+3. **Copy assets to Android project:**
+    ```bash
+    npx cap copy
+    ```
+
+4. **Build APK:**
+    ```bash
+    cd android
+    ./gradlew assembleRelease
+    cd ..
+    ```
+
+5. **Locate the APK:**
+    ```text
+    android/app/build/outputs/apk/release/app-release-unsigned.apk
+    ```
+
+---
+
+### Sign the APK
+
+#### Step 1: Generate a Keystore (only once)
+
+```bash
+keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-key-alias
+```
+
+#### Step 2: Sign with `jarsigner`
+
+```bash
+jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256   -keystore my-release-key.jks   android/app/build/outputs/apk/release/app-release-unsigned.apk my-key-alias
+```
+
+#### Step 3: Align with `zipalign`
+
+```bash
+zipalign -v 4   android/app/build/outputs/apk/release/app-release-unsigned.apk   app-release-unsigned-aligned.apk
+```
+
+#### Step 4: Final Sign with `apksigner`
+
+```bash
+apksigner sign --ks my-release-key.jks   --out app-release-signed.apk   app-release-unsigned-aligned.apk
+```
+
+You now have a **release-signed APK** ready to upload to the **Google Play Store**:
+```text
+app-release-signed.apk
+```

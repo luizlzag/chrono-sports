@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Package, Menu, X, ArrowLeft } from "lucide-react";
 import TransactionList from "./TransactionsList";
 import StockPage from "./StockList";
-import logo from '../../../../../public/logo_black.png';
-import Image from 'next/image'
 import { useStockConfirmation } from "@/context/StockConfirmationContext";
 import StockConfirmationModal from "../modals/StockConfirmationModal";
 
@@ -21,8 +19,8 @@ const Sidebar = ({ activePage, setActivePage, isOpen, toggleMenu }: { activePage
       } md:w-64 md:block`}
     >
       <div className="flex justify-between items-center mb-6">
-        <Image
-          src={logo}
+        <img
+          src="/logo.png"
           alt='logo'
           width={80}
           height={80}
