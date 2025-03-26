@@ -26,7 +26,7 @@ SIGNED_APK="app-release-signed.apk"
 echo "1. Build do Next.js"
 npm run build
 
-echo "2. Preparando pasta public (se necessário)"
+echo "2. Preparando pasta public"
 mkdir -p public
 cp -r .next static public || echo "Ignorando se já estiver exportado"
 
